@@ -1,0 +1,1 @@
+Copy `ota_handler.h` / `ota_handler.cpp` into this folder from the reference implementation ([[projects/ird-temp-compost]] in the wiki, `lib/ota_handler/`) before building this module. Also copy `min_spiffs.csv` into this module's root next to `platformio.ini`.

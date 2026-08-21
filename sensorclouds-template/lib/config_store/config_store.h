@@ -27,7 +27,7 @@ struct Config {
 
     void clear() {
         memset(this, 0, sizeof(Config));
-        mqtt_port = 1883;
+        mqtt_port = 8883;  // TLS (default). Use 1883 only for plaintext.
         publish_interval_ms = 10000;
         power_publish_interval_ms = 5000;
     }

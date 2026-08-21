@@ -1,5 +1,6 @@
 #include "ssc_app.h"
 #include "config.h"
+#include "certs.h"
 #include "sensor.h"
 #include <Arduino.h>
 #include <ArduinoJson.h>
@@ -28,6 +29,10 @@ void SSCApp::begin() {
     Serial.printf("[App] Firmware version: %s\n", FIRMWARE_VERSION);
 
     sscClient_.setCommandCallback(&SSCApp::onMqttCommand);
+
+    // Validate the broker's TLS certificate against the Let's Encrypt
+    // root CA. Required before the secure (port 8883) MQTT connection.
+    wifiClient_.setCACert(SSC_ROOT_CA);
 
     wifiMgr_.begin(config_.wifi_ssid, config_.wifi_pass);
 

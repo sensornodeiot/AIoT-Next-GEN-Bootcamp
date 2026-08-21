@@ -290,7 +290,7 @@ const char PORTAL_HTML[] PROGMEM = R"rawliteral(
       </summary>
       <div class="info-row"><span class="k">WiFi SSID</span><span class="v empty" id="cfg-ssid">Not set</span></div>
       <div class="info-row"><span class="k">MQTT Host</span><span class="v empty" id="cfg-host">Not set</span></div>
-      <div class="info-row"><span class="k">MQTT Port</span><span class="v" id="cfg-port">1883</span></div>
+      <div class="info-row"><span class="k">MQTT Port</span><span class="v" id="cfg-port">8883</span></div>
       <div class="info-row"><span class="k">Tenant ID</span><span class="v empty" id="cfg-tenant">Not set</span></div>
       <div class="info-row"><span class="k">App ID</span><span class="v empty" id="cfg-app">Not set</span></div>
       <div class="info-row"><span class="k">Device ID</span><span class="v empty" id="cfg-device">Not set</span></div>
@@ -367,7 +367,7 @@ const char PORTAL_HTML[] PROGMEM = R"rawliteral(
           </div>
           <div class="form-group">
             <label class="label">MQTT Port <span class="req">*</span></label>
-            <input type="number" id="mqtt-port" value="1883">
+            <input type="number" id="mqtt-port" value="8883">
             <div class="field-error" id="err-mqtt-port">Port is required</div>
           </div>
           <div class="form-group">
@@ -513,14 +513,14 @@ function updateStatusPage() {
   // Update config details
   setRow('cfg-ssid', config.wifi_ssid);
   setRow('cfg-host', config.mqtt_host);
-  setRow('cfg-port', config.mqtt_port || '1883');
+  setRow('cfg-port', config.mqtt_port || '8883');
   setRow('cfg-tenant', config.tenant_id);
   setRow('cfg-app', config.application_id);
   setRow('cfg-device', config.mqtt_client_id);
 
   // Update setup items
   setSetupItem('wifi', hasWifi, config.wifi_ssid ? 'Connected to ' + config.wifi_ssid : 'Not configured — tap to set up');
-  setSetupItem('mqtt', hasMqtt, config.mqtt_host ? config.mqtt_host + ':' + (config.mqtt_port || 1883) : 'Not configured — tap to set up');
+  setSetupItem('mqtt', hasMqtt, config.mqtt_host ? config.mqtt_host + ':' + (config.mqtt_port || 8883) : 'Not configured — tap to set up');
   setSetupItem('device', hasDevice, hasDevice ? 'ID: ' + config.mqtt_client_id.substring(0, 12) + '...' : 'Not configured — tap to set up');
 
   // Update progress badge

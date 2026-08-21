@@ -17,6 +17,7 @@ public:
     void handleMessage(const char* topic, uint8_t* payload, unsigned int length);
 
 private:
+    void handleSetLed(JsonDocument& doc);
     void handleSetInterval(JsonDocument& doc);
     void handleSetPowerInterval(JsonDocument& doc);
     void sendAck(const char* commandId, const char* command,

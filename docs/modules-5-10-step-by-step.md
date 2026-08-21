@@ -1,7 +1,7 @@
 
 # Modules 5–10 — Step-by-Step Build Guide
 
-**What this is.** The concept lessons ([module-05-ssc-client](module-05-ssc-client.md) … [module-10-ota](module-10-ota.md)) explain *why*. This guide is the **do-exactly-this** companion for when you're actually at the keyboard — every file to open, every value to type, every command to run, and exactly what you should see. It matches the real `ssn32-iot-course` repo (which builds clean), so there is nothing to guess.
+**What this is.** The concept lessons ([module-05-ssc-client](module-05-ssc-client.md) … [module-10-ota](module-10-ota.md)) explain *why*. This guide is the **do-exactly-this** companion for when you're actually at the keyboard — every file to open, every value to type, every command to run, and exactly what you should see. It matches the real `AIoT-Next-GEN-Bootcamp` repo (which builds clean), so there is nothing to guess.
 
 **Conventions used below**
 - `▶ DO:` an action to perform. `👁 SEE:` what should appear. `⚠ IF:` a fix for a common failure.
@@ -25,7 +25,7 @@
 
 ## 5.1 — Open the project
 
-▶ DO: In VS Code → **File → Open Folder…** → select **`ssn32-iot-course/module-05-ssc-client`** (the module folder itself, *not* the parent repo).
+▶ DO: In VS Code → **File → Open Folder…** → select **`AIoT-Next-GEN-Bootcamp/module-05-ssc-client`** (the module folder itself, *not* the parent repo).
 
 👁 SEE: the bottom blue PlatformIO bar (✓ → 🔌 …) after a few seconds. In the Explorer you should see:
 ```

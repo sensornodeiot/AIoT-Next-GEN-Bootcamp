@@ -112,7 +112,7 @@ void ConfigPortal::handleMqttSave() {
     strncpy(config_.mqtt_password, server.arg("pass").c_str(), sizeof(config_.mqtt_password) - 1);
 
     if (config_.mqtt_port == 0) {
-        config_.mqtt_port = 1883;
+        config_.mqtt_port = 8883;  // default to TLS
     }
 
     if (store_.save(config_)) {

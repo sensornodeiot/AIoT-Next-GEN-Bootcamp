@@ -23,7 +23,7 @@ No prior embedded or IoT experience required. Basic programming concepts (variab
 ## Getting started
 
 ```
-git clone https://github.com/OceanWave17/ssn32-iot-course.git
+git clone https://github.com/sensornodeiot/AIoT-Next-GEN-Bootcamp.git
 ```
 
 Then **open a single project folder** in VS Code (File → Open Folder) — never the parent repo, or PlatformIO gets confused by the multiple `platformio.ini` files. Which folder to open depends on the module (below).
@@ -51,7 +51,7 @@ pio device monitor -e <env>   # serial @115200
 ## Repo layout
 
 ```
-ssn32-iot-course/
+AIoT-Next-GEN-Bootcamp/
 ├── docs/                             # the written lessons — start with docs/README.md
 ├── module-00-intro/                  # Module 0 — intro (no firmware)
 ├── module-01-mcu-toolchain-serial/   # Modules 1–4 — fundamentals (env: ssn32)

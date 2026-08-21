@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include <Arduino.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
 // ============================================================================
 //  WORKSHOP SENSOR
@@ -12,12 +14,17 @@
 //  what keeps your device ONLINE.
 // ============================================================================
 
+#define DS18B20_PIN 32
+static OneWire oneWire(DS18B20_PIN);
+static DallasTemperature sensors(&oneWire);
+
 // ── EDIT THIS (1/2): initialize your sensor hardware, once at startup ──
 bool sensorBegin() {
     // Module 5: there is no real sensor yet — nothing to initialize.
     // Module 7: for the DS18B20 you'll do the OneWire/Dallas setup here, e.g.
-    //   sensors.begin();
-    //   sensors.setResolution(12);
+      sensors.begin();
+      sensors.setResolution(12);
+      pinMode(4, INPUT_PULLUP);   // button: pressed = LOW
     return true;   // return false only if your hardware failed to start
 }
 
@@ -31,8 +38,17 @@ static SensorReading doRead() {
     //   float t = sensors.getTempCByIndex(0);
     //   if (t == DEVICE_DISCONNECTED_C) return r;   // r.valid stays false -> skip publish
     //   r.add("temperature", t);
-    float fakeTemp = 25.0f + (float)(esp_random() % 200) / 100.0f;  // 25.00–26.99 °C
-    r.add("temperature", fakeTemp);
+    sensors.requestTemperatures();
+    float t = sensors.getTempCByIndex(0);
+    if (t == DEVICE_DISCONNECTED_C) {
+        Serial.println("[Sensor] DS18B20 not found");
+        return r;
+    }
+    r.add("temperautre", t);
+    // potentiometer as a 0–100 % value
+    r.add("pot", analogRead(34) / 4095.0f * 100.0f);
+    // button state: 1 = pressed, 0 = released
+    r.add("button", digitalRead(4) == LOW ? 1.0f : 0.0f);
 
     r.valid = true;   // must be true or nothing is published
     return r;

@@ -152,7 +152,7 @@ bool SSCClient::publishBirthMessage() {
              FIRMWARE_VERSION);
     bool ok = mqtt_.publish(statusTopic_, payload, true);
     if (ok) {
-        Serial.println("[SSC] Birth message sent");
+        Serial.println("[SSC] Birth message sent AIoT Learning course");
     } else {
         Serial.println("[SSC] Birth message failed");
     }

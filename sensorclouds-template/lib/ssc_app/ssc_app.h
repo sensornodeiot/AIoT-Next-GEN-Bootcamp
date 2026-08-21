@@ -1,6 +1,7 @@
 #pragma once
 
 #include <WiFi.h>
+#include <WiFiClientSecure.h>
 #include "config.h"
 #include "config_store.h"
 #include "config_portal.h"
@@ -30,7 +31,7 @@ private:
 
     ConfigStore configStore_;
     Config config_;
-    WiFiClient wifiClient_;
+    WiFiClientSecure wifiClient_;
     WiFiManager wifiMgr_;
     SSCClient sscClient_;
     OtaHandler otaHandler_;

@@ -23,14 +23,14 @@
 Clone the course repository:
 
 ```
-git clone https://github.com/OceanWave17/ssn32-iot-course.git
-cd ssn32-iot-course
+git clone https://github.com/sensornodeiot/AIoT-Next-GEN-Bootcamp.git
+cd AIoT-Next-GEN-Bootcamp
 ```
 
 Inside you'll find one folder per module, plus the template:
 
 ```
-ssn32-iot-course/
+AIoT-Next-GEN-Bootcamp/
 ├── module-01-mcu-toolchain-serial/   ← Modules 1–4: one starter project each
 ├── module-02-gpio/
 ├── module-03-sensors/
@@ -48,7 +48,7 @@ ssn32-iot-course/
 Each is a self-contained PlatformIO project.
 
 1. **VS Code → File → Open Folder →** the module folder itself, e.g. `module-02-gpio`
-   *(Open the module folder, **not** the parent `ssn32-iot-course` — PlatformIO needs `platformio.ini` at the root of the open window.)*
+   *(Open the module folder, **not** the parent `AIoT-Next-GEN-Bootcamp` — PlatformIO needs `platformio.ini` at the root of the open window.)*
 2. Wait for the PlatformIO bar (✓ 🔌 …) at the bottom.
 3. Follow the module's lesson to fill in `src/main.cpp`.
 4. Build / upload / monitor (env is **`ssn32`**):
@@ -86,7 +86,7 @@ On first flash the device has no config, so it starts a Wi-Fi hotspot — see [m
 
 ## 5. How to get / pull the SensorClouds template
 
-**Option A — it's already in the course repo (recommended).** When you cloned `ssn32-iot-course` (Section 2), you got `sensorclouds-template/`. Just open that folder. This copy is pre-tailored for the workshop (beginner `sensor.cpp`, DS18B20-ready).
+**Option A — it's already in the course repo (recommended).** When you cloned `AIoT-Next-GEN-Bootcamp` (Section 2), you got `sensorclouds-template/`. Just open that folder. This copy is pre-tailored for the workshop (beginner `sensor.cpp`, DS18B20-ready).
 
 **Option B — pull the official upstream template.** The template comes from the public repo `github.com/sensornodeiot/ssc-client`:
 ```

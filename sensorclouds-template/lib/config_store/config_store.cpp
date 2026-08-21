@@ -36,7 +36,7 @@ bool ConfigStore::load(Config& config) {
     prefs.getString(KEY_WIFI_SSID, config.wifi_ssid, sizeof(config.wifi_ssid));
     prefs.getString(KEY_WIFI_PASS, config.wifi_pass, sizeof(config.wifi_pass));
     prefs.getString(KEY_MQTT_HOST, config.mqtt_host, sizeof(config.mqtt_host));
-    config.mqtt_port = prefs.getUShort(KEY_MQTT_PORT, 1883);
+    config.mqtt_port = prefs.getUShort(KEY_MQTT_PORT, 8883);
     prefs.getString(KEY_MQTT_CLIENT_ID, config.mqtt_client_id, sizeof(config.mqtt_client_id));
     prefs.getString(KEY_MQTT_USERNAME, config.mqtt_username, sizeof(config.mqtt_username));
     prefs.getString(KEY_MQTT_PASSWORD, config.mqtt_password, sizeof(config.mqtt_password));

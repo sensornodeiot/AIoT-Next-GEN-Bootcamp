@@ -13,6 +13,6 @@ void loop() {
   if (now - lastPrint >= 1000) {
     lastPrint = now;
     unsigned long uptimeSec = now / 1000;
-    Serial.printf("[%lubnd] Hellow from SSN32 - uptime: %lus\n", now, uptimeSec);
+    Serial.printf("[%lums] Hellow from SSN32 - uptime: %lus\n", now, uptimeSec);
   }
 }

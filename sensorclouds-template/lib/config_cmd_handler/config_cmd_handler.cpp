@@ -1,10 +1,12 @@
 #include "config_cmd_handler.h"
 #include "ssc_client.h"
-
+#define LED_CMD_PIN 2
 void ConfigCmdHandler::begin(ConfigStore* store, Config* config, SSCClient* client) {
     store_ = store;
     config_ = config;
     client_ = client;
+    pinMode(LED_CMD_PIN, OUTPUT);
+    digitalWrite(LED_CMD_PIN, LOW); 
     Serial.println("[CfgCmd] Handler initialized");
 }
 
@@ -28,9 +30,12 @@ void ConfigCmdHandler::handleMessage(const char* topic, uint8_t* payload, unsign
         handleSetInterval(doc);
     } else if (strcmp(command, "config:set_power_interval") == 0) {
         handleSetPowerInterval(doc);
+    } else if (strcmp(command, "config:set_led") == 0) {
+        handleSetLed(doc);
     } else {
         Serial.printf("[CfgCmd] Unknown command: %s\n", command);
     }
+
 }
 
 void ConfigCmdHandler::handleSetInterval(JsonDocument& doc) {
@@ -93,6 +98,21 @@ void ConfigCmdHandler::handleSetPowerInterval(JsonDocument& doc) {
 
     Serial.printf("[CfgCmd] power_publish_interval_ms = %u (saved)\n", newInterval);
     sendAck(cmdId, "config:set_power_interval", "ok");
+}
+
+void ConfigCmdHandler::handleSetLed(JsonDocument& doc) {
+    const char* cmdId = doc["commandId"] | "unknown";
+    JsonVariant param = doc["parameters"]["state"];
+
+    if (param.isNull() || !param.is<int>()) {
+        sendAck(cmdId, "config:set_led", "failed", "Missing or invalid state (0 or 1)");
+        return;
+    }
+
+    int state = param.as<int>();
+    digitalWrite(LED_CMD_PIN, state ? HIGH : LOW);
+    Serial.printf("[CfgCmd] LED -> %d\n", state);
+    sendAck(cmdId, "config:set_led", "ok");
 }
 
 void ConfigCmdHandler::sendAck(const char* commandId, const char* command,

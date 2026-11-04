@@ -1,4 +1,3 @@
-
 # Module 2 — GPIO: Output & Input
 
 **Goal:** Control and read physical hardware from code — blink an LED and read a push button reliably.
@@ -121,11 +120,13 @@ With `INPUT_PULLUP`:
 - The pin is held HIGH internally when no button is pressed
 - When you press the button and connect the pin to GND, it reads LOW
 
-Wire your button between the GPIO pin and GND (no external resistor needed):
+Wire your button between **GPIO 4** and GND (no external resistor needed):
 
 ```
-GPIO 0 ──[button]──> GND
+GPIO 4 ──[button]──> GND
 ```
+
+> **Why GPIO 4 and not GPIO 0?** GPIO 0 is wired to the SSN32's own **BOOT** button. Holding it while the board starts puts the chip into upload mode, and from Module 5 the Sensorclouds template uses it to open its setup page. Keeping your button on GPIO 4 means you wire it once and it works in every module.
 
 Reading the button:
 
@@ -137,6 +138,20 @@ int state = digitalRead(BUTTON_PIN);
 
 Note the inverted logic — **LOW means pressed** when using `INPUT_PULLUP`.
 
+### Using the kit's 3-pin button module
+
+Your kit may have a button on a small board with three pins: **GND**, **VCC** and **OUT**. The board already has its own resistor, and most of these modules work the other way round: **OUT is LOW when released and HIGH when pressed.**
+
+| Module pin | Connect to |
+|-----------|-----------|
+| VCC | 3.3 V |
+| GND | GND |
+| OUT | GPIO 4 |
+
+In the code, keep `INPUT_PULLUP` and change one line: `#define PRESSED HIGH` instead of `LOW` (the lab code below has this line at the top).
+
+> **Not sure which kind you have?** Put `Serial.println(digitalRead(BUTTON_PIN));` in `loop()`, upload, and watch the Serial Monitor while you press and release. Whatever number shows *while pressed* (0 = LOW, 1 = HIGH) is your `PRESSED` value. Checking a part's behaviour like this, instead of guessing, is a habit worth keeping.
+
 ---
 
 ## 6. Button Bouncing and Simple Cooldown
@@ -146,10 +161,11 @@ Mechanical buttons bounce — when you press one, the contacts make and break do
 The simplest fix: after accepting a press, **ignore the button for the next 200 ms**. One variable is all it takes:
 
 ```cpp
+#define PRESSED LOW            // plain button to GND (kit 3-pin module: HIGH)
 unsigned long lastPressTime = 0;
 
 int raw = digitalRead(BUTTON_PIN);
-if (raw == LOW && now - lastPressTime >= 200) {
+if (raw == PRESSED && now - lastPressTime >= 200) {
     lastPressTime = now;
     // confirmed press — will not fire again for 200 ms
 }
@@ -181,7 +197,7 @@ void loop() {
 
     // --- Button task ---
     int raw = digitalRead(BUTTON_PIN);
-    if (raw == LOW && now - lastPressTime >= 200) {
+    if (raw == PRESSED && now - lastPressTime >= 200) {
         lastPressTime = now;
         // toggle the blink rate between 500 ms and 100 ms
         if (blinkInterval == 500) {
@@ -206,8 +222,12 @@ Both tasks run independently. Neither blocks the other.
 |-----------|-----------|
 | LED (anode) | GPIO 2 via 220 Ω resistor |
 | LED (cathode) | GND |
-| Button (pin 1) | GPIO 0 |
+| Button (pin 1) | GPIO 4 |
 | Button (pin 2) | GND |
+
+*(Kit 3-pin button module instead: VCC → 3.3 V, GND → GND, OUT → GPIO 4, and set `PRESSED` to `HIGH`.)*
+
+> **Bonus:** GPIO 2 is also connected to the SSN32's **on-board LED**, so the small LED on the board blinks together with yours. If only the on-board one blinks, check your LED's direction (long leg = anode, towards GPIO 2) and the resistor.
 
 ### Complete code
 
@@ -215,7 +235,8 @@ Both tasks run independently. Neither blocks the other.
 #include <Arduino.h>
 
 #define LED_PIN    2
-#define BUTTON_PIN 0
+#define BUTTON_PIN 4
+#define PRESSED    LOW   // plain button to GND. Kit 3-pin module: HIGH
 
 unsigned long lastToggle    = 0;
 unsigned long blinkInterval = 500;
@@ -241,7 +262,7 @@ void loop() {
 
     // Button press with cooldown
     int raw = digitalRead(BUTTON_PIN);
-    if (raw == LOW && now - lastPressTime >= 200) {
+    if (raw == PRESSED && now - lastPressTime >= 200) {
         lastPressTime = now;
         // toggle the blink rate between 500 ms and 100 ms
         if (blinkInterval == 500) {
@@ -256,9 +277,9 @@ void loop() {
 
 ### Build and upload
 
-1. `Ctrl+Alt+U` to upload
-2. `Ctrl+Alt+S` to open Serial Monitor at 115200
-3. Press RST on the SSN32
+1. Click **→ Upload** in the bottom bar (Windows: `Ctrl+Alt+U`)
+2. Click **🔌 Serial Monitor** (Windows: `Ctrl+Alt+S`)
+3. Press **EN** on the SSN32 to restart it and see the first lines
 
 ### Expected behaviour
 
@@ -273,7 +294,8 @@ void loop() {
 | LED stays on/off | Wrong pin or missing resistor | Check wiring and `LED_PIN` constant |
 | Multiple prints per press | Cooldown too short | Increase from `200` to `300` ms |
 | LED doesn't blink (just on) | `lastToggle` not updating | Ensure `lastToggle = now;` is inside the `if` |
-| Button does nothing | `INPUT_PULLUP` not set | Check `pinMode(BUTTON_PIN, INPUT_PULLUP)` |
+| Button does nothing | `INPUT_PULLUP` not set, or wrong pin | Check `pinMode(BUTTON_PIN, INPUT_PULLUP)` and that the wire is on GPIO 4 |
+| Rate keeps toggling by itself, or only changes when you *release* | `PRESSED` is the wrong level for your button | Swap `PRESSED` between `LOW` and `HIGH` (see "Using the kit's 3-pin button module") |
 
 ---
 
@@ -293,3 +315,4 @@ In **[module-03-sensors](module-03-sensors.md)** you will:
 - Read analog signals with the ADC (`analogRead`)
 - Wire and read the DS18B20 temperature sensor using the 1-Wire protocol
 - Run two independent sensor reads in one `loop()` without blocking
+

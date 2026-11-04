@@ -1,4 +1,3 @@
-
 # Module 10 — OTA Firmware Update *(Bonus — Advanced)*
 
 **Goal:** Update the firmware on a deployed device **remotely** — it downloads a new version, verifies it, installs it, and reboots into it. No USB cable. Like commands, this is **built into the template**; you trigger it from the platform.
@@ -32,9 +31,12 @@ The update writes to the *inactive* slot, verifies a **SHA-256 checksum**, and o
 `SSCApp` includes the whole OTA lifecycle. When the platform sends an `ota:update` command, the template ACKs progress, downloads over HTTPS, verifies, installs, reboots, and — on the new firmware's first boot — sends a final `ok`. You write **no firmware**. Your only input is the **version number**.
 
 ### Firmware version — one build flag
-In the template's `platformio.ini`:
+In the template's `platformio.ini`, inside `build_flags` (change only this line, leave the others):
 ```ini
-build_flags = -D FIRMWARE_VERSION='"1.0.0"'
+build_flags =
+    -I include
+    -D FIRMWARE_VERSION='"1.0.0"'
+    -D ARDUINO_LOOP_STACK_SIZE=16384
 ```
 The device reports this in its birth message; the platform compares it to decide whether an update is needed. **Bump it on every release.**
 
@@ -43,14 +45,12 @@ The device reports this in its birth message; the platform compares it to decide
 ## 3. Lab — do an update
 
 ### Step 1 — flash v1.0.0
-▶ Set `FIRMWARE_VERSION='"1.0.0"'`, upload over USB the normal way. 👁 SSC shows the device at `1.0.0`.
+▶ The template ships at `1.0.0`, so just upload over USB the normal way (→ Upload). 👁 SSC shows the device at `1.0.0`.
 
 ### Step 2 — build (don't upload) v1.0.1
-▶ Change to `FIRMWARE_VERSION='"1.0.1"'`, then build only:
-```
-pio run -e esp32dev
-```
-The image is at `.pio/build/esp32dev/firmware.bin`.
+▶ Change to `FIRMWARE_VERSION='"1.0.1"'`, then click **✓ Build** only (not Upload).
+The image is at `sensorclouds-template/.pio/build/esp32dev/firmware.bin`.
+*(Mac: Finder hides folders starting with a dot. Press `Cmd + Shift + .` to show `.pio`.)*
 
 ### Step 3 — push it from the portal
 ▶ SSC portal → your device → **OTA** → upload `firmware.bin`, set target `1.0.1`, **Deploy**.
@@ -90,3 +90,4 @@ Your device now, using the SSC template:
 - Commands with ACKs; safe remote updates
 
 *(Want to see how the template does all this from the building blocks? [appendix-under-the-hood-ssc-client](appendix-under-the-hood-ssc-client.md).)*
+

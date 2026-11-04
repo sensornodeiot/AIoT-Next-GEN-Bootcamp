@@ -1,12 +1,13 @@
+# Appendix — Low-Level SSCClient Step-by-Step
 
-# Modules 5–10 — Step-by-Step Build Guide
+> **Optional, for after the course.** The main course does Modules 5–10 with the ready-made **`sensorclouds-template`** (configured in a browser, no credentials in code): follow [module-05-ssc-client](module-05-ssc-client.md) onward. This guide is the hands-on companion to [appendix-under-the-hood-ssc-client](appendix-under-the-hood-ssc-client.md): it rebuilds the same features **by hand** with the low-level `SSCClient`, using the projects in the repo's **`appendix-low-level/`** folder. Here credentials *do* go in `platformio.ini` build flags, because there is no setup portal.
 
-**What this is.** The concept lessons ([module-05-ssc-client](module-05-ssc-client.md) … [module-10-ota](module-10-ota.md)) explain *why*. This guide is the **do-exactly-this** companion for when you're actually at the keyboard — every file to open, every value to type, every command to run, and exactly what you should see. It matches the real `AIoT-Next-GEN-Bootcamp` repo (which builds clean), so there is nothing to guess.
+**What this is.** The appendix explains *why*. This guide is the **do-exactly-this** companion for when you're actually at the keyboard — every file to open, every value to type, every command to run, and exactly what you should see. It matches the real `AIoT-Next-GEN-Bootcamp` repo (which builds clean), so there is nothing to guess.
 
 **Conventions used below**
 - `▶ DO:` an action to perform. `👁 SEE:` what should appear. `⚠ IF:` a fix for a common failure.
 - The PlatformIO environment in this repo is **`ssn32`** (not `esp32dev`). All build commands use `-e ssn32`.
-- Each `module-XX/` folder is its **own** PlatformIO project — open that folder directly.
+- Each `appendix-low-level/module-XX-…/` folder is its **own** PlatformIO project — open that folder directly.
 - The `ssc_client` library is **already inside** each module's `lib/ssc_client/`. You never download or copy it.
 
 ---
@@ -25,7 +26,7 @@
 
 ## 5.1 — Open the project
 
-▶ DO: In VS Code → **File → Open Folder…** → select **`AIoT-Next-GEN-Bootcamp/module-05-ssc-client`** (the module folder itself, *not* the parent repo).
+▶ DO: In VS Code → **File → Open Folder…** → select **`AIoT-Next-GEN-Bootcamp/appendix-low-level/module-05-ssc-client`** (the module folder itself, *not* the parent repo).
 
 👁 SEE: the bottom blue PlatformIO bar (✓ → 🔌 …) after a few seconds. In the Explorer you should see:
 ```
@@ -215,7 +216,7 @@ Module 5 ready.
 
 **Goal:** send the DS18B20 reading every 30 s; see it arrive.
 
-## 7.1 — Open `module-07-publish-telemetry` and set `platformio.ini`
+## 7.1 — Open `appendix-low-level/module-07-publish-telemetry` and set `platformio.ini`
 
 ▶ DO: Add the sensor libraries and the sensor pin to the flags. Complete file:
 ```ini

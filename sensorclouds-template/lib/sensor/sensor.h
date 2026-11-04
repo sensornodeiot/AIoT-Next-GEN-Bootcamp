@@ -33,3 +33,8 @@ struct SensorReading {
 bool sensorBegin();
 bool sensorRead(char* hexOut, size_t hexLen);
 bool powerRead(char* hexOut, size_t hexLen);
+
+// The workshop LED (GPIO 2). Switched by the config:set_led command and
+// reported in every publish.
+void ledSet(bool on);
+bool ledIsOn();

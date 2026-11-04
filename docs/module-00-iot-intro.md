@@ -1,4 +1,3 @@
-
 # Module 0 — Introduction to IoT
 
 **Goal:** Build the mental model needed before writing any firmware — what IoT actually is, how an IoT system is layered, which component categories you'll work with, and why this course uses PlatformIO.
@@ -127,6 +126,8 @@ Before Module 1, install the toolchain:
 
 Full driver setup (Windows CP210x/CH340 USB-to-serial) and your first working project are covered in [module-01-mcu-toolchain-serial](module-01-mcu-toolchain-serial.md) — this module only needs the extension installed and opening without errors.
 
+**Your hardware kit.** No hardware is needed for Module 0, but before Module 1 check your kit against the full parts list — the SSN32 board, DS18B20, LED, button module, potentiometer, breadboard, resistors, and jumper wires — in the [project-setup-guide](project-setup-guide.md) ("What's in your kit").
+
 ---
 
 ## 7. Deliverable Checklist
@@ -146,3 +147,4 @@ In **[module-01-mcu-toolchain-serial](module-01-mcu-toolchain-serial.md)** you w
 - Set up your first PlatformIO project targeting the SSN32
 - Use Serial as your primary debug tool
 - Build a `millis()`-based uptime printer lab
+

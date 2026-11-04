@@ -1,4 +1,3 @@
-
 # Appendix — Under the Hood: the low-level `SSCClient`
 
 > **Optional / advanced.** The main course ([module-05-ssc-client](module-05-ssc-client.md) onward) uses the ready-made **template** (`SSCApp`) — you flash it and configure it in a browser, writing almost no code. This appendix shows what's happening *inside*: how to drive the low-level `SSCClient` class by hand — connect WiFi yourself, build `SSCConfig`, call `begin()`/`update()`. Read it only if you're curious how the template works, or you want to build a device from the building blocks instead of the orchestrator. For the full hand-written code of every connectivity module in this style, see [modules-5-10-step-by-step](modules-5-10-step-by-step.md).
@@ -336,3 +335,4 @@ In **[module-06-mqtt-ssc-registration](module-06-mqtt-ssc-registration.md)** you
 - Learn what MQTT actually is — broker, topic, publish/subscribe — the messaging model under everything you just did
 - Understand how SSC turns your tenant/app/device IDs into topics
 - See why MQTT (not a normal web request) is the right tool for IoT
+

@@ -4,7 +4,10 @@
 // TODO:
 // - Blink LED_BUILTIN using millis() at a rate that toggles between 500ms and 100ms
 // - Read BUTTON_PIN (INPUT_PULLUP) with software debounce
+//   (PRESSED = LOW for a plain button to GND; HIGH for the kit's 3-pin module)
 // - Each confirmed press toggles the blink rate and prints to Serial
+#define PRESSED LOW   // plain button to GND. Kit 3-pin button module: HIGH
+
 unsigned long lastToggle    = 0;
 unsigned long blinkInterval = 500;
 unsigned long lastPressTime = 0;
@@ -29,7 +32,7 @@ void loop() {
 
     // --- Button task ---
     int raw = digitalRead(BUTTON_PIN);
-    if (raw == LOW && now - lastPressTime >= 200) {
+    if (raw == PRESSED && now - lastPressTime >= 200) {
         lastPressTime = now;
         // toggle the blink rate between 500 ms and 100 ms
         if (blinkInterval == 500) {

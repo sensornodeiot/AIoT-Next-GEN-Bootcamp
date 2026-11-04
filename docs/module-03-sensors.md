@@ -1,4 +1,3 @@
-
 # Module 3 — Sensors: Analog & Digital
 
 **Goal:** Read both analog and digital sensors, understand the difference between them, and wire up the DS18B20 temperature sensor used in all subsequent modules.
@@ -103,6 +102,8 @@ SSN32 GND ──────────────────── DS18B20 G
 ```
 
 The 4.7 kΩ pull-up between VCC and DATA is **required** — without it, the bus has no defined idle state and communication will fail.
+
+> **Your kit has 5.1 kΩ instead of 4.7 kΩ?** Use it. A pull-up only needs to be "roughly a few kΩ" to hold the line HIGH, and 5.1 kΩ works exactly the same on a short wire like this. (Colour bands: 4.7 kΩ starts yellow-violet, 5.1 kΩ starts green-brown.)
 
 ---
 
@@ -325,3 +326,4 @@ In **[module-04-firmware-patterns](module-04-firmware-patterns.md)** you will:
 - Split this project into tidy files (`sensors.h/.cpp`, `led.h/.cpp`) using plain functions — so `main.cpp` reads like a summary
 - Replace hardcoded pin numbers with `platformio.ini` build flags
 - Run three independent timed tasks in a clean, readable `loop()`
+

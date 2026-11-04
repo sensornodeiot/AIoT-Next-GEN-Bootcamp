@@ -1,12 +1,11 @@
 #include "config_cmd_handler.h"
 #include "ssc_client.h"
-#define LED_CMD_PIN 2
+#include "sensor.h"   // ledSet(): the workshop LED on GPIO 2
+
 void ConfigCmdHandler::begin(ConfigStore* store, Config* config, SSCClient* client) {
     store_ = store;
     config_ = config;
     client_ = client;
-    pinMode(LED_CMD_PIN, OUTPUT);
-    digitalWrite(LED_CMD_PIN, LOW); 
     Serial.println("[CfgCmd] Handler initialized");
 }
 
@@ -110,8 +109,13 @@ void ConfigCmdHandler::handleSetLed(JsonDocument& doc) {
     }
 
     int state = param.as<int>();
-    digitalWrite(LED_CMD_PIN, state ? HIGH : LOW);
-    Serial.printf("[CfgCmd] LED -> %d\n", state);
+    if (state != 0 && state != 1) {
+        sendAck(cmdId, "config:set_led", "failed", "State must be 0 or 1");
+        return;
+    }
+
+    ledSet(state == 1);
+    Serial.printf("[CfgCmd] LED -> %s\n", state ? "on" : "off");
     sendAck(cmdId, "config:set_led", "ok");
 }
 

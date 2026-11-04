@@ -1,4 +1,3 @@
-
 # Module 1 — MCU, Toolchain & Serial
 
 **Goal:** Understand what a microcontroller is, get your development environment running, and establish Serial as the primary debug tool used throughout every module.
@@ -74,77 +73,60 @@ When you hold the SSN32 with the USB connector facing down:
 
 You will write firmware in C++ using the **Arduino framework** inside **PlatformIO**, a professional-grade build system that runs as a VS Code extension.
 
-### Step 1 — Install VS Code
+You install three things, once. **The step-by-step instructions for Windows and Mac are in [project-setup-guide](project-setup-guide.md) (Sections 1–6).** If you did that at home, you're already set up. Here is what each piece is for:
 
-Download and install **Visual Studio Code** from `code.visualstudio.com`.
-
-### Step 2 — Install the PlatformIO extension
-
-1. Open VS Code
-2. Click the **Extensions** icon in the left sidebar (or press `Ctrl+Shift+X`)
-3. Search for **PlatformIO IDE**
-4. Click **Install**
-5. Wait for the installation to complete — PlatformIO downloads its core tools the first time it runs. This can take a few minutes.
-6. Restart VS Code when prompted
-
-You will see a small house icon (🏠) in the left sidebar — that is the PlatformIO home screen.
-
-### Step 3 — Install the USB driver (Windows only)
-
-The SSN32 uses a CP210x or CH340 USB-to-Serial chip. Windows may need a driver:
-
-- **CP210x:** search "CP210x USB to UART Bridge Driver" on Silicon Labs' website
-- **CH340:** search "CH340 driver" on the manufacturer's website
-
-Connect the SSN32 with a Micro-USB cable. Open Device Manager (`Win + X → Device Manager`). Under **Ports (COM & LPT)** you should see a COM port (e.g., `COM3`). If you see an unknown device instead, install the driver for your chip.
+| Tool | What it does |
+|------|--------------|
+| **VS Code** | The editor you type your code in |
+| **PlatformIO IDE** (VS Code extension) | Compiles your code into firmware and uploads it to the board. Adds the ✓ Build, → Upload and 🔌 Serial Monitor buttons to the bottom bar |
+| **USB driver** (CP2102 or CH340) | Lets your computer talk to the SSN32's USB-to-serial chip. It shows up as a **COM port** on Windows or `/dev/cu.usbserial-…` on Mac |
 
 ---
 
 ## 4. Your First PlatformIO Project
 
-### Create the project
+### Open the Module 1 starter
 
-1. Click the **PlatformIO home** icon in the left sidebar
-2. Click **New Project**
-3. Fill in the form:
-   - **Name:** `module01-serial`
-   - **Board:** type `esp32dev` and select **Espressif ESP32 Dev Module**
-   - **Framework:** Arduino
-4. Click **Finish** — PlatformIO creates the project folder and downloads the ESP32 toolchain (first time only, ~500 MB)
+You downloaded the course as a ZIP in the setup guide. Open the Module 1 project:
+
+1. Click the **house icon** (PlatformIO Home) in the bottom bar → **Open Project**
+2. Go to `AIoT-Next-GEN-Bootcamp/module-01-mcu-toolchain-serial` and click **Open "module-01-mcu-toolchain-serial"**
+
+> **Why open the module folder and not the whole course?** PlatformIO treats the folder you open as *one* project and looks for `platformio.ini` directly inside it. The course folder holds many projects, so PlatformIO wouldn't know which one to build.
 
 ### Project structure
 
-After creation you will see:
-
 ```
-module01-serial/
+module-01-mcu-toolchain-serial/
 ├── platformio.ini       ← project configuration
 ├── src/
 │   └── main.cpp         ← your firmware code goes here
-├── include/             ← your header files
-├── lib/                 ← your local libraries
-└── .pio/                ← generated build files (never edit or commit this)
+└── .pio/                ← generated build files (appears after the first build; never edit it)
 ```
+
+> **Go further: create a project from scratch.** PlatformIO Home → **New Project** → Name `my-first-project`, Board **Espressif ESP32 Dev Module** (`esp32dev`), Framework **Arduino** → **Finish**. PlatformIO makes the same folder structure (plus empty `include/`, `lib/` and `test/` folders). You won't need this in the course, but it's how every real project starts.
 
 ### Understanding platformio.ini
 
 Open `platformio.ini`. It looks like this:
 
 ```ini
-[env:esp32dev]
+[env:ssn32]
 platform = espressif32
 board = esp32dev
 framework = arduino
+monitor_speed = 115200
 ```
 
 | Key                      | Meaning                                                                             |
 | ------------------------ | ----------------------------------------------------------------------------------- |
-| `[env:esp32dev]`         | Names this build environment — you can have multiple environments in one file       |
+| `[env:ssn32]`            | Names this build environment ("ssn32"). One file can hold several environments      |
 | `platform = espressif32` | The hardware platform (Espressif chip family)                                       |
-| `board = esp32dev`       | The specific board definition — esp32dev matches the SSN32's ESP32-WROOM-32E layout |
+| `board = esp32dev`       | The board definition. `esp32dev` matches the SSN32's ESP32-WROOM-32E                |
 | `framework = arduino`    | Use the Arduino SDK (gives you `setup()`, `loop()`, `Serial`, etc.)                 |
+| `monitor_speed = 115200` | The speed the Serial Monitor listens at. Must match `Serial.begin(115200)` in your code |
 
-You will add more settings to this file in later modules (libraries, build flags, upload speed).
+You will add more settings to this file in later modules (libraries, build flags).
 
 ---
 
@@ -237,10 +219,10 @@ void setup() {
 
 In VS Code with PlatformIO:
 1. Connect the SSN32 via USB
-2. Click the **plug icon** at the bottom status bar (or press `Ctrl+Alt+S`)
-3. Set the baud rate to **115200**
+2. Click the **plug icon** at the bottom status bar (or press `Ctrl+Alt+S` on Windows)
+3. The speed (baud rate) comes from `monitor_speed = 115200` in `platformio.ini`, so there's nothing to set
 
-> If you see scrambled characters, the baud rate does not match. Check that both `Serial.begin()` and the monitor are set to `115200`.
+> If you see scrambled characters, the speeds don't match. Check that `Serial.begin()` in your code and `monitor_speed` in `platformio.ini` are both `115200`.
 
 ---
 
@@ -379,20 +361,21 @@ Serial.printf("[%lums] Hello from SSN32 — uptime: %lus\n", now, uptimeSec);
 ### Build and upload
 
 1. Connect the SSN32 to your computer via USB
-2. In VS Code, press `Ctrl+Alt+U` (or click the **Upload** arrow button at the bottom) — PlatformIO compiles the code and uploads it
+2. Click the **→ Upload** button in the bottom bar (Windows shortcut: `Ctrl+Alt+U`). PlatformIO compiles the code and uploads it
 3. Wait for the message: `=== [SUCCESS] Took X.XX seconds ===`
-4. Open the Serial Monitor (`Ctrl+Alt+S`) at **115200 baud**
-5. Press the **RST (Reset)** button on the SSN32 — the board restarts and you will see the output appear
+4. Click the **🔌 Serial Monitor** button (Windows shortcut: `Ctrl+Alt+S`). It already listens at **115200** because of `monitor_speed` in `platformio.ini`
+5. Press the **EN** button on the SSN32: the board restarts and you will see the output appear
 
-> If upload fails with "Could not open port", check that no other program (e.g., Arduino IDE) has the COM port open, and that the correct COM port is detected in Device Manager.
+> If upload fails with "Could not open port", close the Serial Monitor or any other program using the port (e.g. Arduino IDE) and try again. More fixes: [project-setup-guide](project-setup-guide.md) Section 9.
 
 ### Troubleshooting
 
 | Symptom | Likely cause | Fix |
 |---------|-------------|-----|
 | Scrambled characters in monitor | Baud rate mismatch | Set monitor to 115200 |
-| No output at all | Board not in normal boot mode | Hold RST, release; or hold BOOT then press RST then release BOOT |
-| Upload fails — port not found | Driver not installed or wrong COM port | Reinstall USB driver; check Device Manager |
+| No output at all | Board not in normal boot mode | Press EN once; if still nothing, re-upload |
+| Upload fails — port not found | Charge-only cable or no driver | Try another cable; install the driver ([project-setup-guide](project-setup-guide.md) Section 3) |
+| Upload stuck at `Connecting.....` | Board didn't enter upload mode | Hold **BOOT** while you click Upload; release when the percentage starts |
 | `[0ms]` repeats immediately | `lastPrint` not updating | Ensure `lastPrint = now;` is inside the `if` block |
 | Compile error: `'Serial' not declared` | Missing `#include <Arduino.h>` | Add the include at the top of the file |
 
@@ -403,7 +386,7 @@ Serial.printf("[%lums] Hello from SSN32 — uptime: %lus\n", now, uptimeSec);
 Before moving to Module 2, verify:
 
 - [x] VS Code and PlatformIO extension are installed
-- [x] SSN32 is detected as a COM port in Device Manager (Windows) or `/dev/ttyUSB0` (Linux/Mac)
+- [x] SSN32 is detected as a COM port in Device Manager (Windows) or `/dev/cu.usbserial-…` (Mac)
 - [x] Project builds without errors (`=== [SUCCESS] ===`)
 - [x] Firmware uploads to the SSN32
 - [x] Serial Monitor shows `SSN32 ready.` on boot
@@ -418,3 +401,4 @@ In **[module-02-gpio](module-02-gpio.md)**, you will:
 - Control an LED wired to a GPIO pin
 - Read a push button with reliable press detection
 - Learn the non-blocking timer pattern (`millis()`) properly — why `delay()` breaks firmware and how to replace it
+

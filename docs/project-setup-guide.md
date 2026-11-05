@@ -17,12 +17,12 @@ Every student receives the same hardware kit. Check it against this list before 
 | Photo | Component | Qty | Used from |
 |-------|-----------|-----|-----------|
 | <img src="assets/kit-ssn32.png" width="90"> | **SSN32** (ESP32-WROOM-32E dev board) | 1 | Module 1 |
-| <img src="assets/kit-push-button-module.png" width="90"> | **Push-button module** (3 pins: GND / VCC / OUT) | 1 | Module 2 |
+| <img src="assets/kit-tactile-switch-4leg.png" width="90"> <img src="assets/kit-push-button-module.png" width="90"> | **Push button**: a 4-leg tactile switch **or** a 3-pin module (GND / VCC / OUT). Either works | 1 | Module 2 |
 | <img src="assets/kit-led.png" width="90"> | **LED** (5 mm) | 1 | Module 2 |
 | <img src="assets/kit-ds18b20.png" width="90"> | **DS18B20** temperature sensor (waterproof probe, 1-Wire) | 1 | Module 3 |
-| <img src="assets/kit-potentiometer.png" width="90"> | **Potentiometer** (rotary, analog) | 1 | Module 3 |
+| <img src="assets/kit-potentiometer.png" width="90"> | **Potentiometer**: a rotary knob **or** a blue 3296 multi-turn trimmer. Either works | 1 | Module 3 |
 | <img src="assets/kit-breadboard.png" width="90"> | **Breadboard** (400-tie, 55 × 85 mm) | 1 | Module 2 |
-| <img src="assets/kit-resistor-10k.png" width="90"> | **Resistor 10 kΩ** | 1 | Module 3 |
+| <img src="assets/kit-resistor-10k.png" width="90"> | **Resistor 10 kΩ** (for the LDR / thermistor bonus) | 1 | Module 3 |
 | <img src="assets/kit-resistor-4k7.png" width="90"> | **Resistor 4.7 kΩ** (DS18B20 pull-up) | 1 | Module 3 |
 | <img src="assets/kit-resistor-220r.png" width="90"> | **Resistor 220 Ω** (LED current limit) | 1 | Module 2 |
 | <img src="assets/kit-jumper-mf-short.png" width="90"> | **Jumper wires, male–female, short** | 6 | Module 2+ |
@@ -34,6 +34,7 @@ Every student receives the same hardware kit. Check it against this list before 
 - **4.7 kΩ** is the DS18B20 pull-up value from its datasheet. Some kits contain **5.1 kΩ** instead (colour bands green-brown-…): it works exactly the same, use it.
 - The **220 Ω** resistor protects the LED in Module 2 (see the Ohm's-law wiring in [module-02-gpio](module-02-gpio.md)).
 - The screw terminal lands the DS18B20's three flying leads onto breadboard jumpers cleanly.
+- **Extra parts** (if your kit has the bigger component pack): LDR, NTC thermistor, active buzzer, RGB LED, 4N35 optocoupler, transistors. You don't need them for the labs; Modules 2 and 3 show what each one is for, and the LDR and thermistor are a Module 3 bonus.
 
 **You also need (not in the kit):**
 - A **USB data cable** for the SSN32 (Micro-USB on the board side). ⚠ Many cheap cables are **charge-only** and carry no data: the board lights up but the computer never sees it. If in doubt, use the cable that came with a phone.

@@ -22,6 +22,20 @@
 
 Analog sensors are simple to wire but produce noisy readings. Digital sensors require a library but give clean, calibrated data. The DS18B20 is the right choice for temperature in IoT applications — it is accurate to ±0.5 °C out of the box.
 
+### Sensors in your kit
+
+The lab uses the potentiometer and the DS18B20. The kit has more, and each one shows a different side of analog vs digital:
+
+| Part | Type | What it tells you | Extra part needed | Where you'd use it |
+|------|------|-------------------|-------------------|--------------------|
+| **Potentiometer** (knob) or **3296 trimmer** (blue box, brass screw) | Analog | A position: how far it's turned | **None**: it is already a voltage divider (Section 2) | Knob: a setpoint ("keep the room at 25 °C"). Trimmer: a set-once adjustment with a screwdriver, e.g. a sensor's sensitivity |
+| **LDR** (light-dependent resistor) | Analog | Light level | **10 kΩ** resistor | Street lights that switch on at dusk, screen auto-brightness |
+| **NTC thermistor** | Analog | Temperature, roughly: its resistance falls as it warms | **10 kΩ** resistor | Cheap temperature sensing in kettles, battery packs, 3D printers. Needs a formula and calibration to give °C |
+| **DS18B20** | Digital (1-Wire) | Temperature in °C, already calibrated | 4.7 kΩ pull-up | Cold rooms, aquariums, compost: the course's main sensor |
+| **Push button** | Digital | Pressed or not | None (`INPUT_PULLUP`, Module 2) | Any "a person did something" input |
+
+The thermistor and the DS18B20 both measure temperature: one is analog and cheap, the other is digital and accurate. The bonus at the end of the lab lets you compare them side by side.
+
 ---
 
 ## 2. ADC: Reading Analog Signals
@@ -41,6 +55,21 @@ float percent = (analogRead(34) / 4095.0f) * 100.0f;
 ```
 
 Use `4095.0f` (not `4095`) to force floating-point division.
+
+### Voltage dividers: why the pot needs no extra resistor
+
+The ADC measures a **voltage**, so an analog sensor has to turn what it senses into one. Two resistors in series between 3.3 V and GND do that: the voltage at the point between them depends on how the 3.3 V is shared between the two. That is a **voltage divider**.
+
+- A **potentiometer or trimmer** *is* a divider already: one long resistor between its outer pins, and the wiper slides along it. Wiper straight to GPIO 34, outer pins to 3.3 V and GND, **no extra resistor**.
+- An **LDR** or **thermistor** is only *one* resistor that changes. Add a fixed **10 kΩ** as the second half:
+
+```
+3.3 V ──[ LDR or NTC ]──┬──[ 10 kΩ ]── GND
+                        │
+                     GPIO 34
+```
+
+With the sensor on top, more light (LDR) or more heat (NTC) lowers its resistance, so more of the 3.3 V reaches GPIO 34 and the percentage **rises**. Swap the two parts and it falls instead. Both are fine; you just read it the other way round.
 
 ### ESP32 ADC caveats
 
@@ -211,6 +240,12 @@ Two events per 2-second cycle: trigger at the top, read 800 ms later. The loop i
 | DS18B20 DATA | GPIO 32 (with 4.7 kΩ to 3.3 V) |
 | DS18B20 GND | GND |
 
+> **Got a small blue box with a brass screw instead of a knob?** That's a **multi-turn trimmer** (e.g. 3296W). The code on top gives its value: `W202` = 2 kΩ, `103` = 10 kΩ. Any of these works. Its three pins are in a row and the **middle pin is the wiper**: it goes **straight to GPIO 34, no resistor needed**; the outer pins go to 3.3 V and GND. Two things are different from a knob:
+> - It takes about **25 full turns** of the screw to go from 0 % to 100 %. A few turns may barely move the reading.
+> - It has **no end stop**. At either end it keeps turning without changing anything, so "it turns but nothing happens" usually means you're at an end: turn the other way.
+>
+> If it still reads the same after 25+ turns each way, check it with a multimeter (power off): about the printed value between the two outer pins, and a changing value from the middle pin to one outer pin while you turn. If not, the trimmer is broken; swap it.
+
 ### platformio.ini
 
 ```ini
@@ -307,6 +342,19 @@ Module 3 ready.
 ```
 
 Both sensors report independently. Neither blocks the other.
+
+### Bonus — swap the pot for the LDR or the thermistor
+
+No code change: the program reads whatever voltage is on GPIO 34. Take the potentiometer out and build the divider from Section 2 instead (sensor from 3.3 V to GPIO 34, **10 kΩ** from GPIO 34 to GND).
+
+| Part on GPIO 34 | Do this | You should see |
+|-----------------|---------|----------------|
+| LDR | Cover it with a finger, then shine a phone torch on it | The percentage drops close to 0, then climbs high |
+| NTC thermistor | Hold it between two fingers for 20 s | The percentage rises a few points, slowly. Hold the DS18B20 at the same time: its °C rises too |
+
+The thermistor shows the trade-off from Section 1: it reacts to heat, but "57 %" is not a temperature. Turning it into °C needs the part's datasheet, a formula and a calibration against a real thermometer. The DS18B20 gives °C directly, which is why the course uses it.
+
+Put the potentiometer back when you're done: Modules 4–7 expect it. (In Module 7, whatever is on GPIO 34 is published as `pot`, so you can bring the LDR back then to put light on your dashboard.)
 
 ---
 

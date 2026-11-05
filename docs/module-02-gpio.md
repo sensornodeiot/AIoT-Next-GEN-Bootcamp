@@ -19,6 +19,21 @@
 
 GPIO pins are how the MCU connects to the real world: they drive LEDs, control relay coils, read button states, and communicate with sensors.
 
+### On/off (digital) parts in your kit
+
+A **digital** part has only two states: on or off, pressed or released, HIGH or LOW. This module wires the first two rows; the others work the same way and show where the idea goes in real devices.
+
+| Part | Direction | What it does | Where you'd use it |
+|------|-----------|--------------|--------------------|
+| **LED** | Output | Lights when the pin is HIGH | Status light: "online", "alarm active" |
+| **4-leg tactile switch** | Input | Joins two legs while pressed | Reset, mode select, "call for service" button |
+| **3-pin button module** | Input | A button with its own resistor on a small board | Same jobs, wired with three jumpers |
+| **Active buzzer** | Output | Beeps by itself while powered | Door-open alarm, "fridge too warm" beep |
+| **RGB LED** | Output | Red, green and blue LEDs in one part, one pin each | One light, several meanings: green OK, red fault |
+| **4N35 optocoupler** | Input | Passes an on/off signal through light, with no wire between the two sides | Reading a 12–24 V machine signal ("motor running") without connecting it to the 3.3 V board |
+
+> The buzzer needs more current than a GPIO pin should give, so a transistor (also in the kit) switches it and the pin only tells the transistor when to beep. You can build it at the end of the lab: "Go further — make it beep".
+
 ### Voltage levels on the SSN32
 
 Every GPIO pin operates at **3.3 V logic**. HIGH = 3.3 V, LOW = 0 V. Never connect a 5 V signal to a GPIO pin without level shifting — it will damage the chip.
@@ -29,7 +44,7 @@ Every GPIO pin operates at **3.3 V logic**. HIGH = 3.3 V, LOW = 0 V. Never conne
 
 ### Ohm's law and the current-limiting resistor
 
-An LED will draw as much current as the circuit allows. Without a resistor, it pulls far more than the pin can source (~12 mA GPIO limit on ESP32) and will burn out — along with the GPIO driver.
+An LED will draw as much current as the circuit allows. Without a resistor, it pulls far more than the pin can safely give (keep each ESP32 pin to about **20 mA**; 40 mA is its absolute maximum) and can damage the LED and the pin.
 
 Use a **220 Ω resistor** in series with the LED:
 
@@ -37,8 +52,8 @@ Use a **220 Ω resistor** in series with the LED:
 GPIO 2 ──[220Ω]──[LED anode → cathode]──> GND
 ```
 
-Ohm's law: `V = I × R`  
-`3.3 V / 220 Ω ≈ 15 mA` — within the LED's rated range and well within the pin limit.
+Ohm's law: `I = V / R`. The LED itself always takes about 2 V, so the resistor only gets the rest:  
+`(3.3 V − 2 V) / 220 Ω ≈ 6 mA`: bright enough to see, and well within the pin limit.
 
 ### pinMode and digitalWrite
 
@@ -125,6 +140,27 @@ Wire your button between **GPIO 4** and GND (no external resistor needed):
 ```
 GPIO 4 ──[button]──> GND
 ```
+
+### Using the kit's 4-leg tactile switch
+
+<img src="assets/kit-tactile-switch-4leg.png" width="160">
+
+The small black switch with a round cap and **four legs** (6 × 6 mm) is the most common button in electronics. It has no resistor and no board, so it is exactly the "button to GND" above.
+
+Four legs, but only **two connections**: inside, the legs are joined in pairs. The two legs that **face each other across the body** are always connected; pressing the cap joins the two pairs.
+
+1. Push it into the breadboard **across the centre gap**, like a chip.
+2. Use two legs that are **diagonally opposite**. Diagonal legs are always in different pairs, so this works whichever way round the switch sits.
+3. One diagonal leg → **GPIO 4**, the other → **GND**.
+
+```
+          centre gap
+   GPIO 4 ─ ●━━┊━━●        ● = leg, ━━ = always connected inside
+               ┊           pressing joins the top pair to the bottom pair
+            ●━━┊━━● ─ GND
+```
+
+> **Reads "pressed" all the time, or never?** You picked two legs of the same pair (always connected). Use the diagonal, or turn the switch 90°.
 
 > **Why GPIO 4 and not GPIO 0?** GPIO 0 is wired to the SSN32's own **BOOT** button. Holding it while the board starts puts the chip into upload mode, and from Module 5 the Sensorclouds template uses it to open its setup page. Keeping your button on GPIO 4 means you wire it once and it works in every module.
 
@@ -222,8 +258,8 @@ Both tasks run independently. Neither blocks the other.
 |-----------|-----------|
 | LED (anode) | GPIO 2 via 220 Ω resistor |
 | LED (cathode) | GND |
-| Button (pin 1) | GPIO 4 |
-| Button (pin 2) | GND |
+| 4-leg tactile switch, one leg | GPIO 4 |
+| The diagonally opposite leg | GND |
 
 *(Kit 3-pin button module instead: VCC → 3.3 V, GND → GND, OUT → GPIO 4, and set `PRESSED` to `HIGH`.)*
 
@@ -296,6 +332,43 @@ void loop() {
 | LED doesn't blink (just on) | `lastToggle` not updating | Ensure `lastToggle = now;` is inside the `if` |
 | Button does nothing | `INPUT_PULLUP` not set, or wrong pin | Check `pinMode(BUTTON_PIN, INPUT_PULLUP)` and that the wire is on GPIO 4 |
 | Rate keeps toggling by itself, or only changes when you *release* | `PRESSED` is the wrong level for your button | Swap `PRESSED` between `LOW` and `HIGH` (see "Using the kit's 3-pin button module") |
+| 4-leg switch: rate toggles by itself every 200 ms, or never | GPIO 4 and GND are on two legs of the same pair (always connected), or the switch isn't across the centre gap | Use two **diagonally opposite** legs, with the switch across the centre gap |
+
+### Go further — make it beep (active buzzer + transistor)
+
+Swap the LED for the kit's **active buzzer** (a **Digisound F/TCW05**: a small black cylinder, Ø 12 mm, with `+` marked on top) and your blink becomes a beep, with no code change. The button still switches between slow and fast beeps. It is loud (about 88 dB at 10 cm), so in class keep the test short.
+
+**Why not wire the buzzer straight to the pin like the LED?** The F/TCW05 takes up to **30 mA**, more than a GPIO pin should give (about 20 mA). Things that need more current than a pin can give (buzzers, relays, motors, LED strips) are switched with a **transistor**: a tiny current from the pin into the transistor's **base** lets a much bigger current flow from its **collector** to its **emitter**, through the buzzer. The pin gives under 1 mA; the buzzer's current never goes through the ESP32.
+
+```
+3.3 V ──────────┬────────────┐
+                │            │
+           buzzer +       1N4007   stripe end at the top (towards +)
+          (F/TCW05)          │
+           buzzer −          │
+                │            │
+                └─────┬──────┘
+                      │
+                      C  collector ┐
+                                   │  NPN transistor
+GPIO 2 ──[ 5.1 kΩ ]── B  base      │  (2N2222A)
+                                   │
+GND ───────────────── E  emitter   ┘
+```
+
+1. **The transistor:** your kit's is a **2N2222A**, an **NPN** type (the print is on its flat face). Other NPN parts such as `S8050` work the same; PNP parts such as `S8550` won't work in this circuit.
+2. **Find its legs.** Flat face towards you, legs down: **E B C** from left to right (emitter, base, collector).
+3. **Base resistor:** the kit's **5.1 kΩ** works; **1 kΩ**, if you have one, switches the buzzer's full 30 mA with more margin. Never connect the base straight to the pin.
+4. **Buzzer:** `+` to 3.3 V, the other leg to the collector. Its legs are 7.6 mm apart, so they sit 3 breadboard holes apart. An active buzzer like the F/TCW05 has a sealed bottom; one with the circuit board showing underneath is the *passive* kind, which only clicks here.
+5. **Diode:** put the kit's **1N4007** across the buzzer, its **stripe towards `+`**. The F/TCW05 is an *electromagnetic* buzzer: there is a small coil inside, and when a coil switches off it kicks back a voltage spike. The diode soaks it up so it can't damage the transistor. Relays and motors have coils too and need the same diode.
+
+> **Louder?** The F/TCW05 is rated **5 V** (it works from 3 V to 7 V), so on 3.3 V it is quieter than it can be. If your SSN32 has a **5V** pin, put the buzzer's `+` (and the diode's stripe) there instead. The 5 V only flows through the buzzer and the transistor, never into the GPIO pin, so this is safe.
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| Silent, or very quiet | Transistor legs in the wrong order | Flat face towards you: E B C, left to right |
+| Beeps all the time | Buzzer's other leg on GND instead of the collector, or the base wired to 3.3 V | The buzzer goes to C only; the base goes only through the resistor to GPIO 2 |
+| Only clicks | It's the passive buzzer | Use the one with the sealed bottom |
 
 ---
 

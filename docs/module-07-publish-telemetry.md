@@ -84,7 +84,7 @@ No re-upload needed: the template already has all the code. It just finds the pa
 | Do this | You should see |
 |---------|----------------|
 | Hold the DS18B20 in your hand for 20 s | `temperature` rises a degree or more |
-| Turn the potentiometer fully one way, then the other | `pot` goes to about 0, then about 100 |
+| Turn the potentiometer fully one way, then the other (a multi-turn trimmer takes ~25 turns each way) | `pot` goes to about 0, then about 100 |
 | Press the button once, quickly | `button` shows `1` for one publish, then `0` |
 | Hold the button down | `button` stays `1` |
 
@@ -171,6 +171,8 @@ If the two lists don't match, every value after the mismatch lands in the wrong 
 | `[Sensor] DS18B20 not found`, `temperature` empty | Missing pull-up, wrong pin or loose wire | Check the resistor from DATA to 3.3 V and that DATA is on GPIO 32 |
 | `temperature` reads exactly `85` | 85 °C is the sensor's power-on value: its measurement never finished | Usually the red VCC wire isn't on 3.3 V. Check it |
 | `pot` jumps around randomly | Nothing (or a loose wire) on GPIO 34 | Check the middle leg goes to GPIO 34 and the outer legs to 3.3 V and GND |
+| `pot` stays at 100 % (or 0 %) whatever you do | A multi-turn trimmer sitting at one end, a GND (or 3.3 V) wire not connected, or a broken trimmer | A trimmer (blue box, brass screw) needs about 25 turns end to end and never stops: keep turning the other way. Then touch the GPIO 34 wire to GND: if Serial shows about 0 %, the board is fine and the pot or its wiring is the problem. Meter the trimmer (Module 3 box) and swap it if dead |
+| `temperature` empty or wrong although the wiring looks right | A bad jumper wire or a faulty board | Swap the jumper wires one by one, then try another SSN32. Breadboard jumpers fail more often than you'd expect |
 | `pot` only goes from 100 down to 0 the "wrong" way | Outer legs swapped | Swap the 3.3 V and GND wires on the potentiometer (or leave it, it's still correct) |
 | `button` is always `1` | The button was held down while the board started | Release it and press **EN** |
 | `button` never changes | A plain button wired to 3.3 V, or a 3-pin module without VCC | A plain button goes between GPIO 4 and **GND**; the 3-pin module needs VCC on 3.3 V |

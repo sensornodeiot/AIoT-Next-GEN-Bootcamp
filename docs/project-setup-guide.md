@@ -321,7 +321,7 @@ If your instructor announces an update, download the ZIP again (Step 3) and extr
 - **Send Part A as homework** before day 1 and ask everyone to bring a screenshot of the green `[SUCCESS]`. It proves VS Code and PlatformIO work, and the big download happens at home. Students who already have their board can do Part B too and bring `SSN32 ready.` instead.
 - Bring **spare data cables** (Micro-USB and USB-C) and a few **USB-C adapters** for Mac users.
 - **ESP32 DevKit (ESP-32UE) boards** need their antenna (it comes in the box) fitted before Module 5.
-- Before Modules 5–10: **register each student's device in Sensorclouds**, and paste the template decoder (`sensorclouds-template/docs/platform/decoder.md`) into each device before Module 7.
+- Before Modules 5–10: **register each student's device in Sensorclouds**, and paste the template decoder (`sensorclouds-template/docs/platform/decoder.md`) into the **Device Profile's Payload Formatter** once, before Module 7.
 - The course repo is **public**, so the ZIP download needs no GitHub account.
 
 ---

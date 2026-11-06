@@ -1,7 +1,8 @@
 # Sensorclouds Payload Decoder — Workshop Template
 
-Paste the script below into your device's **decoder** in Sensorclouds. It turns the hex
-string the SSN32 sends into named values you can put on a dashboard.
+Paste the script below into the **Device Profile → Payload Formatter** in Sensorclouds (a CUSTOM
+codec). One copy serves every device on that profile. It turns the hex string the board sends
+into named values you can put on a dashboard.
 
 ## What the device sends
 
@@ -28,73 +29,52 @@ Decoded: { "temperature": 25.31, "pot": 42.67, "button": 1, "led": 0 }
 
 ## The decoder script
 
+It uses the `decodeUplink(input)` format that Sensorclouds recommends: the platform turns the
+36-character hex string into `input.bytes` (an array of numbers) before calling it. Plain ES5
+JavaScript, no `const` or typed arrays, so it runs in any decoder sandbox.
+
 ```js
 // Sensorclouds decoder: AIoT Next-GEN Bootcamp workshop template
-//
-// The device sends 4 hex chars of random nonce, then one big-endian
-// IEEE-754 float (8 hex chars) per value, in this order.
-// If you add a value with r.add("name", ...) in lib/sensor/sensor.cpp,
-// add the same name here, at the same position.
-const NAMES = ["temperature", "pot", "button", "led"];
+// Payload: 2-byte random nonce, then one big-endian float32 per name.
+// Add a value with r.add("name", ...) in sensor.cpp? Add the same name
+// at the END of NAMES.
+var NAMES = ["temperature", "pot", "button", "led"];
 
-function decode(input) {
-  const bytes = toBytes(input);
-  if (!bytes) {
-    return { error: "Payload is not valid hex" };
-  }
-
-  const expected = 2 + NAMES.length * 4;
-  if (bytes.length !== expected) {
-    return { error: "Expected " + expected + " bytes, got " + bytes.length +
-                    ". Check that NAMES matches the r.add() calls in sensor.cpp" };
-  }
-
-  const view = new DataView(new Uint8Array(bytes).buffer);
-  const result = {};
-
-  NAMES.forEach(function (name, i) {
-    const value = view.getFloat32(2 + i * 4, false);
-    // NaN means "no reading" (e.g. DS18B20 not connected): leave the field out
-    if (!isNaN(value)) {
-      result[name] = Math.round(value * 100) / 100;
-    }
-  });
-
-  return result;
+function f32(b, i) {
+  var bits = ((b[i] << 24) >>> 0) + (b[i + 1] << 16) + (b[i + 2] << 8) + b[i + 3];
+  var sign = (bits >>> 31) ? -1 : 1;
+  var exp = (bits >>> 23) & 0xFF;
+  var frac = bits & 0x7FFFFF;
+  if (exp === 0xFF) return frac ? NaN : sign * Infinity;
+  if (exp === 0) return sign * frac * Math.pow(2, -149);
+  return sign * (1 + frac / 8388608) * Math.pow(2, exp - 127);
 }
 
-// Accepts a hex string, { bytes: [...] } or a plain byte array
-function toBytes(input) {
-  if (typeof input === "string") {
-    const hex = input.replace(/\s+/g, "");
-    if (!/^[0-9a-fA-F]*$/.test(hex) || hex.length % 2 !== 0) {
-      return null;
-    }
-    const bytes = [];
-    for (let i = 0; i < hex.length; i += 2) {
-      bytes.push(parseInt(hex.substr(i, 2), 16));
-    }
-    return bytes;
+function decodeUplink(input) {
+  var b = input.bytes;
+  var expected = 2 + NAMES.length * 4;
+  if (b.length !== expected) {
+    return { errors: ["Expected " + expected + " bytes, got " + b.length +
+                      ": NAMES must match the r.add() calls in sensor.cpp"] };
   }
-  if (input && input.bytes) {
-    return Array.from(input.bytes);
+  var data = {};
+  for (var k = 0; k < NAMES.length; k++) {
+    var v = f32(b, 2 + k * 4);
+    if (!isNaN(v)) data[NAMES[k]] = Math.round(v * 100) / 100;  // NaN = no sensor
   }
-  if (Array.isArray(input)) {
-    return input;
-  }
-  return null;
+  return { data: data };
 }
 ```
 
 ## Test it before you save
 
-Most decoder editors have a **Test** box. Paste one of these and check the result:
+The Payload Formatter has a **Test** box. Paste one of these and check the result:
 
 | Test payload | Expected result |
 |---|---|
 | `9c2e41ca8000422ab3333f80000000000000` | `{ "temperature": 25.31, "pot": 42.67, "button": 1, "led": 0 }` |
 | `51077fc00000000000000000000000000000` | `{ "pot": 0, "button": 0, "led": 0 }` (no DS18B20 connected) |
-| `9c2e41ca8000` | an `error` saying 18 bytes were expected |
+| `9c2e41ca8000` | an `errors` entry saying 18 bytes were expected |
 
 Or copy a real payload from the device's Serial monitor (the `[SSC] Telemetry: ...` line) or from the
 platform's event log.
@@ -110,8 +90,9 @@ wrong field, so always add to the end of both lists.
 
 ## Commands the template understands
 
-Send these from **Sensorclouds → device → Send Command**. The device answers each one with an
-ACK on the `.../ack` topic.
+Send these from **Sensorclouds → device → Send Command**, typing the name exactly. Sensorclouds has
+no built-in command list: names the template doesn't know get no ACK and end as TIMEOUT after
+5 minutes. The device answers each command below with an ACK on the `.../ack` topic.
 
 | Command | Parameters | What it does |
 |---|---|---|

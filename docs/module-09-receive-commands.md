@@ -90,6 +90,10 @@ The template ships two ready commands:
 5. ▶ Restart the board (press **EN**). 👁 It comes back publishing at **30 s**: the interval was saved. (The LED is off again: only settings are saved.)
 6. ▶ Set it back to `{ "publish_interval_ms": 10000 }`.
 
+> **Publishing less often than once a minute?** Sensorclouds marks a device OFFLINE after 1.5 × the Device Profile's keep-alive without a message (90 s with the default 60 s). For a longer interval, raise the profile's keep-alive first: about 300 s for one publish every 5 minutes. Otherwise the device flips to OFFLINE between publishes.
+
+> **Use these exact names.** Sensorclouds has no built-in list of commands: the device understands only what its firmware implements. Names the template doesn't know (for example `reboot` or `setInterval`) get no ACK, and the platform marks them TIMEOUT after 5 minutes.
+
 ---
 
 ## 5. How the ACK lifecycle looks on the platform

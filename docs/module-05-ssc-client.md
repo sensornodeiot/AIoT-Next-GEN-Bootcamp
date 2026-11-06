@@ -8,7 +8,7 @@
 
 **Deliverable:** Your device connects on power-up, publishes its readings every 10 seconds, and **stays online** in the SSC dashboard — all configured through a web wizard, no credentials in code.
 
-> **Instructor note:** the payoff here is a board that shows up green *and stays green*. That "stays" matters: a device that only connects but never publishes gets marked offline after a few minutes — which is exactly why we use the template (it publishes on a timer). Have the SSC dashboard projected. The #1 snag is joining the config Wi-Fi hotspot; Section 6 is the triage guide.
+> **Instructor note:** the payoff here is a board that shows up green *and stays green*. That "stays" matters: a device that only connects but never publishes gets marked offline after 90 seconds without a message (1.5 × the Device Profile's 60 s keep-alive) — which is exactly why we use the template (it publishes on a timer). Have the SSC dashboard projected. The #1 snag is joining the config Wi-Fi hotspot; Section 6 is the triage guide.
 
 ---
 
@@ -147,7 +147,7 @@ After it reboots with valid config, 👁 Serial shows roughly:
 
 If your instructor has already added the template **decoder** to your device, you'll also see `pot`, `button` and `led` values arriving. (`temperature` stays empty until you wire the DS18B20 in Module 7, and `pot` wanders randomly while nothing is connected to GPIO 34: an unconnected input "floats".)
 
-> **Why it stays online now** (when Module-4-style connect-only code did not): SSC marks a device offline after a few minutes of *no publishes*. The template publishes every interval, so its "last seen" never goes stale.
+> **Why it stays online now** (when Module-4-style connect-only code did not): SSC marks a device offline after 90 seconds without a message (1.5 × the Device Profile's 60 s keep-alive). The template publishes every interval, so its "last seen" never goes stale.
 
 ---
 

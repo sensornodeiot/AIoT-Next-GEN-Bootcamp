@@ -144,7 +144,7 @@ The template sends a compact hex string: a **4-character random nonce**, then **
 nonce temp=27.44 pot=12.8  button=0  led=0
 ```
 
-SSC turns this back into named values with a **decoder**: a short script you paste into the device in Sensorclouds. The complete, tested script is in the course repo at **`sensorclouds-template/docs/platform/decoder.md`**, with test payloads you can try in the decoder's test box. Your instructor may have added it for you already.
+SSC turns this back into named values with a **decoder**: a short script that lives on the **Device Profile** (Payload Formatter page), so one copy serves every device on that profile. The complete, tested script is in the course repo at **`sensorclouds-template/docs/platform/decoder.md`**, with test payloads you can try in the decoder's test box. Your instructor may have added it for you already.
 
 > **Why not just send `{"temperature": 27.44}` as text?** Over Wi-Fi it would work fine. But the same 18 bytes can also travel over low-power radio networks like LoRaWAN, which only carry a few dozen bytes per message and can't fit field names. Every value is always exactly 4 bytes, so the size never changes. Sending compact numbers and decoding them on the server is the normal industrial pattern, and this course teaches it from the start.
 
@@ -160,7 +160,7 @@ Say you add a humidity sensor. Two steps, and the **order must match**:
    ```
 2. In the decoder, add `"humidity"` at the **end** of the `NAMES` list:
    ```js
-   const NAMES = ["temperature", "pot", "button", "led", "humidity"];
+   var NAMES = ["temperature", "pot", "button", "led", "humidity"];
    ```
 
 If the two lists don't match, every value after the mismatch lands in the wrong field. Up to 16 values fit in one publish.

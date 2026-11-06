@@ -82,7 +82,7 @@ Between messages there can be gaps. What stops the **broker** from deciding the 
 
 *You write no code for this — there is no manual heartbeat to send.* It's also why a long `delay()` is dangerous: the ping stops, the broker gives up, and your LWT fires.
 
-> **Keep-alive keeps the connection open; publishing keeps you "online" on the dashboard.** The Sensorclouds platform also tracks when it last *received data* from you, and marks a device offline after a few minutes of silence. That's why the template publishes every 10 s (Module 5). You need both.
+> **Keep-alive keeps the connection open; publishing keeps you "online" on the dashboard.** The Sensorclouds platform also tracks when it last *received data* from you: if no message arrives for **1.5 × the Device Profile's keep-alive** (90 s with the default 60 s), the device is marked OFFLINE, and it goes back to ONLINE with the next message. Keep-alive pings don't count, only messages. That's why the template publishes every 10 s (Module 5). You need both.
 
 ---
 
@@ -135,7 +135,7 @@ Use the template you flashed in Module 5 (already online). This lab is about *se
 | `[WiFi] Connecting to …` repeats forever | Wrong SSID/password (case-sensitive) or a 5 GHz network | Re-enter Wi-Fi in the portal; use a 2.4 GHz network |
 | WiFi OK, then `[SSC] Connection timeout` | Wrong broker host or port | Check the MQTT Host and port **8883** in the portal |
 | Connects then drops repeatedly | Wrong token / password / tenant / app | Re-copy all IDs from the dashboard into the portal |
-| Online, then offline after a few minutes | Nothing is being published | Check Serial for a `[SSC] Telemetry:` line every ~10 s |
+| Online, then offline after about 90 s | Nothing is being published | Check Serial for a `[SSC] Telemetry:` line every ~10 s |
 | *(If you add your own code to the template)* offline after ~1–2 min | A `delay()` that blocks `loop()`, so the keep-alive stops | Keep `loop()` non-blocking (Module 4) |
 | No birth message in log | `begin()` didn't finish, or dashboard opened before connect | Check Serial; refresh the dashboard |
 

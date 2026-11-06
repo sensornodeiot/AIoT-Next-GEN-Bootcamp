@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="110" font-family="Segoe UI, Roboto, Arial, sans-serif" viewBox="0 0 420 110"><rect width="100%" height="100%" fill="#ffffff"/>
+          <rect x="10" y="40" width="400" height="30" rx="6" fill="#EEF5DE" stroke="#b7cd7e"/>
+          <rect x="10" y="40" width="10" height="30" fill="#1F3864"/><rect x="200" y="40" width="10" height="30" fill="#6f8f2f"/>
+          <text x="15" y="30" font-size="13" fill="#1F3864" font-weight="700">ask</text><text x="190" y="30" font-size="13" fill="#6f8f2f" font-weight="700">read (800 ms later)</text>
+          <text x="210" y="95" text-anchor="middle" font-size="13" fill="#5b6472">in between: loop keeps running everything else</text>
+        </svg>

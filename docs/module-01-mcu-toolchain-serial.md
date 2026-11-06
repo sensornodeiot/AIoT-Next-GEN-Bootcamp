@@ -41,6 +41,12 @@ MCUs are the right choice when you need **low power**, **fast deterministic resp
 
 The SSN32 is Sensornode IoT Technology's ESP32 development board. It is the hardware you will use throughout this course.
 
+> **Your board may look different.** Some classes use an **ESP32 mini board** (USB-C, a **RST** button and no BOOT button) or an **ESP32 DevKit** with an **ESP-32UE** module (its screw-on antenna comes in the box and must be fitted for Wi-Fi). All three are ESP32 boards with the **same GPIO numbers**, so every pin number and every line of code in this course works on all of them; only the pin *positions* differ. Find each pin by the label printed next to it. The table under "Your board" in [project-setup-guide](project-setup-guide.md) lists the differences.
+
+| SSN32 | ESP32 mini board | ESP32 DevKit (ESP-32UE) |
+|:---:|:---:|:---:|
+| <img src="assets/kit-ssn32.png" width="170"> | <img src="assets/kit-esp32-mini-usbc.jpg" width="170"> | <img src="assets/kit-esp32-devkit-32ue.jpg" width="190"> |
+
 ### Key facts
 
 | Feature   | Value                                            |
@@ -73,7 +79,7 @@ When you hold the SSN32 with the USB connector facing down:
 
 You will write firmware in C++ using the **Arduino framework** inside **PlatformIO**, a professional-grade build system that runs as a VS Code extension.
 
-You install three things, once. **The step-by-step instructions for Windows and Mac are in [project-setup-guide](project-setup-guide.md) (Sections 1–6).** If you did that at home, you're already set up. Here is what each piece is for:
+You install three things, once. **The step-by-step instructions for Windows and Mac are in [project-setup-guide](project-setup-guide.md) (Steps 1–6).** If you did that at home, you're already set up. Here is what each piece is for:
 
 | Tool | What it does |
 |------|--------------|
@@ -150,17 +156,8 @@ The `#include <Arduino.h>` line is required when using PlatformIO — unlike the
 
 ### setup() and loop()
 
-```
-Power on / reset
-       │
-       ▼
-   setup()          ← runs exactly once
-       │
-       ▼
-   loop()  ──────── ← runs repeatedly until power is removed
-       │    ↑
-       └────┘
-```
+![fig-setup-loop.svg](assets/fig-setup-loop.svg)
+*setup() runs once at power-on; loop() then runs again and again until the power is removed.*
 
 `setup()` is where you configure hardware: initialize Serial, set pin modes, connect to Wi-Fi, etc.
 
@@ -216,6 +213,10 @@ void setup() {
 > **Why `%lu` and not `%d`?** The `%` code must match the *type* of the value. `millis()` returns an **`unsigned long`** (a big, always-positive number), and `%lu` is exactly "unsigned long." Using `%d` (a plain int) with it can print wrong numbers once the value gets large. Rule of thumb for this course: **anything from `millis()` gets `%lu`.**
 
 ### Opening the Serial Monitor
+
+![fig-dev-cycle.svg](assets/fig-dev-cycle.svg)
+*The loop you will repeat all course: write, build, upload, then read what the board says.*
+
 
 In VS Code with PlatformIO:
 1. Connect the SSN32 via USB
@@ -366,7 +367,7 @@ Serial.printf("[%lums] Hello from SSN32 — uptime: %lus\n", now, uptimeSec);
 4. Click the **🔌 Serial Monitor** button (Windows shortcut: `Ctrl+Alt+S`). It already listens at **115200** because of `monitor_speed` in `platformio.ini`
 5. Press the **EN** button on the SSN32: the board restarts and you will see the output appear
 
-> If upload fails with "Could not open port", close the Serial Monitor or any other program using the port (e.g. Arduino IDE) and try again. More fixes: [project-setup-guide](project-setup-guide.md) Section 9.
+> If upload fails with "Could not open port", close the Serial Monitor or any other program using the port (e.g. Arduino IDE) and try again. More fixes: [project-setup-guide](project-setup-guide.md) ("Something went wrong?").
 
 ### Troubleshooting
 
@@ -374,7 +375,7 @@ Serial.printf("[%lums] Hello from SSN32 — uptime: %lus\n", now, uptimeSec);
 |---------|-------------|-----|
 | Scrambled characters in monitor | Baud rate mismatch | Set monitor to 115200 |
 | No output at all | Board not in normal boot mode | Press EN once; if still nothing, re-upload |
-| Upload fails — port not found | Charge-only cable or no driver | Try another cable; install the driver ([project-setup-guide](project-setup-guide.md) Section 3) |
+| Upload fails — port not found | Charge-only cable or no driver | Try another cable; install the driver ([project-setup-guide](project-setup-guide.md) Step 5) |
 | Upload stuck at `Connecting.....` | Board didn't enter upload mode | Hold **BOOT** while you click Upload; release when the percentage starts |
 | `[0ms]` repeats immediately | `lastPrint` not updating | Ensure `lastPrint = now;` is inside the `if` block |
 | Compile error: `'Serial' not declared` | Missing `#include <Arduino.h>` | Add the include at the top of the file |

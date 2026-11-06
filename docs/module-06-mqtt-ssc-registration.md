@@ -16,10 +16,8 @@
 
 **MQTT** is the small, efficient "texting" system that IoT devices use to talk to a server. Three roles:
 
-```
-   Publisher  ──send──>  Broker  ──deliver──>  Subscriber
-   (your board)          (the SSC server)      (the dashboard)
-```
+![fig-pubsub.svg](assets/fig-pubsub.svg)
+*Publish and subscribe: everything goes through the broker.*
 
 - **Broker** — the central post office. Everything goes through it. SSC runs the broker.
 - **Client** — anything connected to the broker. Your board is a client; so is the dashboard.
@@ -61,6 +59,9 @@ The library builds these strings for you inside `begin()` and subscribes to the 
 ## 3. Three Features That Keep "Online/Offline" Honest
 
 These are the parts students most often see but don't understand. Here's what each is *for*.
+
+![fig-online-honest.svg](assets/fig-online-honest.svg)
+*Birth says "online", keep-alive keeps the connection, and the last will reports "offline" for a board that vanished.*
 
 ### Birth message — "I'm here"
 When the device connects, the library publishes to the **status** topic:

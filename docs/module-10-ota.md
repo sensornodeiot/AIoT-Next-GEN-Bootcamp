@@ -24,6 +24,9 @@ app1 (inactive) ← the new image is written here
 
 The update writes to the *inactive* slot, verifies a **SHA-256 checksum**, and only then flips the boot pointer. Power lost mid-download? The running slot is untouched — it just boots the old firmware. Bad download? Checksum fails, the new slot is never marked bootable. New firmware crashes on boot? The bootloader **rolls back**. This is why the template's partition table is `min_spiffs.csv` (dual slots) — already set in its `platformio.ini`.
 
+![fig-ota-slots.svg](assets/fig-ota-slots.svg)
+*The new version goes into the empty slot; the board switches only after the checksum passes.*
+
 ---
 
 ## 2. The template already does OTA

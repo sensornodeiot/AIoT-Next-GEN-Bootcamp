@@ -66,7 +66,17 @@ The template ships two ready commands:
 5. ▶ Send `{ "state": 5 }`. 👁 The device replies `status: "failed"` with `State must be 0 or 1`, and the LED doesn't change.
 6. ▶ Send `{ "state": 0 }` to switch it off.
 
+![fig-two-directions.svg](assets/fig-two-directions.svg)
+*Commands arrive at once; the new state shows up in the next 10-second publish.*
+
 > **Why did the LED react instantly but the `led` value only later?** Commands are pushed to the device the moment you send them. Telemetry goes up on the device's own timer (every 10 s). Two separate directions, two separate timings.
+
+### Swap the output: a remote alarm
+
+![fig-remote-alarm.svg](assets/fig-remote-alarm.svg)
+*One command, any on/off output part on GPIO 2.*
+
+`config:set_led` doesn't know there is an LED on GPIO 2. It just sets the pin HIGH or LOW. Put the **active buzzer** (through the transistor, as in Module 2's "Swap the output — make it beep") on GPIO 2 instead, and the same command becomes an **alarm you switch on from the cloud**: `{ "state": 1 }` beeps, `{ "state": 0 }` stops. Same firmware, same dashboard buttons, a different part. Keep the test short, it's loud. (The on-board LED still lights with it, so you can see the pin's state even when the buzzer is off.)
 
 ## 4. Lab B — change the interval from the cloud
 

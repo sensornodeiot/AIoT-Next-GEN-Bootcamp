@@ -26,6 +26,9 @@ The fix is the pattern you already met in Modules 2 and 3: break work into **sho
 
 ## 2. The Non-Blocking Timer Pattern (the one pattern to remember)
 
+![fig-tasks.svg](assets/fig-tasks.svg)
+*Three tasks, three clocks, one loop: each task acts only when its own time comes.*
+
 ```cpp
 unsigned long lastRun = 0;
 const unsigned long INTERVAL_MS = 1000;
@@ -93,6 +96,9 @@ Call `updateSensor()` every loop. Each call does a tiny bit and returns immediat
 ---
 
 ## 4. Why Split Code Into Files?
+
+![fig-files.svg](assets/fig-files.svg)
+*One file per job. main.cpp just calls the tasks; pins live in platformio.ini.*
 
 So far everything lived in `main.cpp`. That's fine for 40 lines. But once you add WiFi, the cloud client, sensors, and command handling, `main.cpp` becomes hundreds of lines and impossible to scan.
 

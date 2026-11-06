@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="230" font-family="Segoe UI, Roboto, Arial, sans-serif" viewBox="0 0 900 230"><rect width="100%" height="100%" fill="#ffffff"/>
+      <g stroke="#1F3864" stroke-width="3" fill="none">
+        <line x1="200" y1="30" x2="200" y2="55"/><rect x="185" y="55" width="30" height="130" rx="4" fill="#F2F6FB"/><line x1="200" y1="185" x2="200" y2="210"/>
+        <path d="M260 120 L222 120"/><path d="M228 112 L218 120 L228 128"/>
+        <line x1="260" y1="120" x2="320" y2="120"/>
+        <line x1="640" y1="30" x2="640" y2="50"/><rect x="625" y="50" width="30" height="55" rx="4" fill="#EEF5DE" stroke="#6f8f2f"/>
+        <line x1="640" y1="105" x2="640" y2="135"/><rect x="625" y="135" width="30" height="55" rx="4" fill="#F2F6FB"/><line x1="640" y1="190" x2="640" y2="210"/>
+        <line x1="640" y1="120" x2="720" y2="120"/>
+      </g>
+      <g font-size="15" fill="#1F3864" font-weight="700">
+        <text x="200" y="22" text-anchor="middle">3.3 V</text><text x="200" y="226" text-anchor="middle">GND</text><text x="330" y="125">GPIO 34</text>
+        <text x="100" y="125" text-anchor="middle">pot / trimmer</text><text x="100" y="146" text-anchor="middle" font-weight="400" fill="#5b6472" font-size="13">wiper slides along</text>
+        <text x="640" y="22" text-anchor="middle">3.3 V</text><text x="640" y="226" text-anchor="middle">GND</text><text x="730" y="125">GPIO 34</text>
+        <text x="560" y="83" text-anchor="end">LDR or NTC</text><text x="560" y="168" text-anchor="end">10 kΩ</text>
+      </g>
+      <text x="200" y="120" text-anchor="middle" font-size="12" fill="#5b6472" transform="rotate(-90 200 120)">one long resistor</text>
+      <line x1="450" y1="20" x2="450" y2="215" stroke="#c7d7ec" stroke-width="2" stroke-dasharray="6 6"/>
+    </svg>

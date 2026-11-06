@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="220" font-family="Segoe UI, Roboto, Arial, sans-serif" viewBox="0 0 900 220"><rect width="100%" height="100%" fill="#ffffff"/>
+      <text x="20" y="40" font-size="16" font-weight="700" fill="#8a5a00">delay(500)</text>
+      <rect x="150" y="20" width="700" height="34" rx="6" fill="#fbf2df" stroke="#e6cf95"/>
+      <rect x="150" y="20" width="12" height="34" fill="#8a5a00"/><rect x="500" y="20" width="12" height="34" fill="#8a5a00"/>
+      <text x="330" y="43" text-anchor="middle" font-size="14" fill="#8a5a00">frozen: button ignored</text><text x="680" y="43" text-anchor="middle" font-size="14" fill="#8a5a00">frozen: button ignored</text>
+      <text x="20" y="120" font-size="16" font-weight="700" fill="#6f8f2f">millis()</text>
+      <rect x="150" y="100" width="700" height="34" rx="6" fill="#EEF5DE" stroke="#b7cd7e"/>
+      <g fill="#6f8f2f"><rect x="150" y="100" width="12" height="34"/><rect x="500" y="100" width="12" height="34"/></g>
+      <g fill="#1F3864"><rect x="200" y="108" width="4" height="18"/><rect x="240" y="108" width="4" height="18"/><rect x="280" y="108" width="4" height="18"/><rect x="320" y="108" width="4" height="18"/><rect x="360" y="108" width="4" height="18"/><rect x="400" y="108" width="4" height="18"/><rect x="440" y="108" width="4" height="18"/><rect x="560" y="108" width="4" height="18"/><rect x="600" y="108" width="4" height="18"/><rect x="640" y="108" width="4" height="18"/><rect x="680" y="108" width="4" height="18"/><rect x="720" y="108" width="4" height="18"/><rect x="760" y="108" width="4" height="18"/><rect x="800" y="108" width="4" height="18"/></g>
+      <text x="500" y="165" text-anchor="middle" font-size="15" fill="#1F3864"><tspan fill="#6f8f2f" font-weight="700">▮ green</tspan> = LED toggles · <tspan font-weight="700">▮ navy</tspan> = loop checks the button, the sensor, Wi-Fi …</text>
+    </svg>

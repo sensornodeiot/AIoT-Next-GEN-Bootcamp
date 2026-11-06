@@ -19,6 +19,9 @@
 
 GPIO pins are how the MCU connects to the real world: they drive LEDs, control relay coils, read button states, and communicate with sensors.
 
+![fig-gpio-in-out.svg](assets/fig-gpio-in-out.svg)
+*An output pin makes a voltage; an input pin reads one.*
+
 ### On/off (digital) parts in your kit
 
 A **digital** part has only two states: on or off, pressed or released, HIGH or LOW. This module wires the first two rows; the others work the same way and show where the idea goes in real devices.
@@ -32,7 +35,21 @@ A **digital** part has only two states: on or off, pressed or released, HIGH or 
 | **RGB LED** | Output | Red, green and blue LEDs in one part, one pin each | One light, several meanings: green OK, red fault |
 | **4N35 optocoupler** | Input | Passes an on/off signal through light, with no wire between the two sides | Reading a 12–24 V machine signal ("motor running") without connecting it to the 3.3 V board |
 
-> The buzzer needs more current than a GPIO pin should give, so a transistor (also in the kit) switches it and the pin only tells the transistor when to beep. You can build it at the end of the lab: "Go further — make it beep".
+> The buzzer needs more current than a GPIO pin should give, so a transistor (also in the kit) switches it and the pin only tells the transistor when to beep. You can build it at the end of the lab: "Swap the output — make it beep".
+
+### Think in roles, not parts
+
+The pin doesn't know *which* part is connected: an input pin only sees HIGH or LOW, and an output pin only makes HIGH or LOW. So this module's code isn't "LED code" and "button code". It is **on/off output** code (GPIO 2) and **on/off input** code (GPIO 4), and any part that does that job works:
+
+| Role | Pin | Any of these | Change in code |
+|------|-----|--------------|----------------|
+| On/off output | GPIO 2 | LED + 220 Ω, active buzzer (through a transistor), a common-cathode RGB LED | None |
+| On/off input | GPIO 4 | 4-leg tactile switch, 3-pin button module, 4N35 optocoupler | The `PRESSED` line (LOW or HIGH) |
+
+Use whichever part you have, and try swapping once the lab works. [swap-your-parts](swap-your-parts.md) has the wiring for every option.
+
+![fig-roles-gpio.svg](assets/fig-roles-gpio.svg)
+*Two jobs, many parts: the code only knows the pin.*
 
 ### Voltage levels on the SSN32
 
@@ -48,9 +65,8 @@ An LED will draw as much current as the circuit allows. Without a resistor, it p
 
 Use a **220 Ω resistor** in series with the LED:
 
-```
-GPIO 2 ──[220Ω]──[LED anode → cathode]──> GND
-```
+![fig-led-resistor.svg](assets/fig-led-resistor.svg)
+*GPIO 2 → 220 Ω → LED → GND. The resistor sets the current.*
 
 Ohm's law: `I = V / R`. The LED itself always takes about 2 V, so the resistor only gets the rest:  
 `(3.3 V − 2 V) / 220 Ω ≈ 6 mA`: bright enough to see, and well within the pin limit.
@@ -83,6 +99,9 @@ void loop() {
 This works, but it is **fatally wrong for real firmware**. During both `delay(500)` calls, the MCU sits completely frozen — it cannot read a sensor, check a button, communicate over WiFi, or do anything at all. The entire program blocks.
 
 Rule: **never use `delay()` in production firmware**. You will not use it after this module.
+
+![fig-delay-vs-millis.svg](assets/fig-delay-vs-millis.svg)
+*With delay() the board is frozen between blinks. With millis() the loop keeps checking everything else in between.*
 
 ---
 
@@ -135,6 +154,9 @@ With `INPUT_PULLUP`:
 - The pin is held HIGH internally when no button is pressed
 - When you press the button and connect the pin to GND, it reads LOW
 
+![fig-pullup.svg](assets/fig-pullup.svg)
+*The internal pull-up holds GPIO 4 HIGH; pressing the button joins it to GND.*
+
 Wire your button between **GPIO 4** and GND (no external resistor needed):
 
 ```
@@ -153,12 +175,8 @@ Four legs, but only **two connections**: inside, the legs are joined in pairs. T
 2. Use two legs that are **diagonally opposite**. Diagonal legs are always in different pairs, so this works whichever way round the switch sits.
 3. One diagonal leg → **GPIO 4**, the other → **GND**.
 
-```
-          centre gap
-   GPIO 4 ─ ●━━┊━━●        ● = leg, ━━ = always connected inside
-               ┊           pressing joins the top pair to the bottom pair
-            ●━━┊━━● ─ GND
-```
+![wire-switch-4leg.svg](assets/wire-switch-4leg.svg)
+*The 4-leg switch across the centre gap: legs are joined in pairs; use two diagonal legs.*
 
 > **Reads "pressed" all the time, or never?** You picked two legs of the same pair (always connected). Use the diagonal, or turn the switch 90°.
 
@@ -252,18 +270,21 @@ Both tasks run independently. Neither blocks the other.
 
 ## 8. Lab — LED Blink + Button Toggle
 
-### Hardware
+### Hardware: pick one part for each role
 
-| Component | Connection |
-|-----------|-----------|
-| LED (anode) | GPIO 2 via 220 Ω resistor |
-| LED (cathode) | GND |
-| 4-leg tactile switch, one leg | GPIO 4 |
-| The diagonally opposite leg | GND |
+| Role | Part | Connection | `PRESSED` |
+|------|------|-----------|-----------|
+| **Output** (GPIO 2) | LED | Long leg (anode) → 220 Ω → GPIO 2; short leg (cathode) → GND | — |
+| | *or* active buzzer | Through the transistor: see "Swap the output — make it beep" below | — |
+| **Input** (GPIO 4) | 4-leg tactile switch | One leg → GPIO 4, the diagonally opposite leg → GND | `LOW` |
+| | *or* 3-pin button module | VCC → 3.3 V, GND → GND, OUT → GPIO 4 | `HIGH` |
 
-*(Kit 3-pin button module instead: VCC → 3.3 V, GND → GND, OUT → GPIO 4, and set `PRESSED` to `HIGH`.)*
+Start with the LED (it's easier to see what's happening), then swap. The code is the same for every row; only the `PRESSED` line follows your input part.
 
-> **Bonus:** GPIO 2 is also connected to the SSN32's **on-board LED**, so the small LED on the board blinks together with yours. If only the on-board one blinks, check your LED's direction (long leg = anode, towards GPIO 2) and the resistor.
+![wire-led-button.svg](assets/wire-led-button.svg)
+*Lab wiring: LED on GPIO 2, button on GPIO 4. The 3-pin module (right) replaces the button.*
+
+> **Bonus:** on all three course boards, GPIO 2 is also connected to an **on-board LED**, so the small LED on the board blinks together with yours. If only the on-board one blinks, check your LED's direction (long leg = anode, towards GPIO 2) and the resistor.
 
 ### Complete code
 
@@ -334,7 +355,7 @@ void loop() {
 | Rate keeps toggling by itself, or only changes when you *release* | `PRESSED` is the wrong level for your button | Swap `PRESSED` between `LOW` and `HIGH` (see "Using the kit's 3-pin button module") |
 | 4-leg switch: rate toggles by itself every 200 ms, or never | GPIO 4 and GND are on two legs of the same pair (always connected), or the switch isn't across the centre gap | Use two **diagonally opposite** legs, with the switch across the centre gap |
 
-### Go further — make it beep (active buzzer + transistor)
+### Swap the output — make it beep (active buzzer + transistor)
 
 Swap the LED for the kit's **active buzzer** (a **Digisound F/TCW05**: a small black cylinder, Ø 12 mm, with `+` marked on top) and your blink becomes a beep, with no code change. The button still switches between slow and fast beeps. It is loud (about 88 dB at 10 cm), so in class keep the test short.
 
@@ -379,6 +400,7 @@ GND ───────────────── E  emitter   ┘
 - [x] No repeated triggers — one physical press = one Serial print
 - [x] You can explain why `delay()` is a problem and how `millis()` solves it
 - [x] You can explain what button bouncing is and why a cooldown timer prevents false triggers
+- [x] You can explain why the same code works with a different button (or a buzzer instead of the LED), and which one line changes
 
 ---
 

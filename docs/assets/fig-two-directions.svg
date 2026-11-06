@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="200" font-family="Segoe UI, Roboto, Arial, sans-serif" viewBox="0 0 900 200"><rect width="100%" height="100%" fill="#ffffff"/>
+      <text x="20" y="45" font-size="16" font-weight="700" fill="#1F3864">↓ command</text>
+      <rect x="170" y="25" width="700" height="32" rx="6" fill="#F2F6FB" stroke="#c7d7ec"/>
+      <rect x="300" y="25" width="10" height="32" fill="#1F3864"/><text x="305" y="80" text-anchor="middle" font-size="13" fill="#1F3864">click "LED on" → LED lights at once</text>
+      <text x="20" y="135" font-size="16" font-weight="700" fill="#6f8f2f">↑ telemetry</text>
+      <rect x="170" y="115" width="700" height="32" rx="6" fill="#EEF5DE" stroke="#b7cd7e"/>
+      <g fill="#6f8f2f"><rect x="170" y="115" width="10" height="32"/><rect x="520" y="115" width="10" height="32"/><rect x="860" y="115" width="10" height="32"/></g>
+      <text x="175" y="170" font-size="13" fill="#5b6472">led = 0</text><text x="525" y="170" text-anchor="middle" font-size="13" fill="#6f8f2f" font-weight="700">led = 1 (next publish)</text>
+    </svg>

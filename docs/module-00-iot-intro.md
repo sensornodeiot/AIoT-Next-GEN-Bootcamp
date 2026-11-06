@@ -18,6 +18,9 @@ At its core, IoT is one idea: take a physical object — a room, a machine, a pl
 
 **Sense. Think. Communicate.** That's the whole model.
 
+![fig-iot-sense-think.svg](assets/fig-iot-sense-think.svg)
+*Sense, think, communicate. Day 1 of the course covers the first two; Day 2 adds the third.*
+
 The "internet" part just means these devices talk to each other, to servers in the cloud, or to apps on a phone — without a person manually carrying data between them.
 
 ### Concrete example
@@ -33,6 +36,9 @@ The value isn't the sensor and it isn't the cloud dashboard on its own — it's 
 ## 2. The Four-Layer Model
 
 Every IoT system, no matter how simple or complex, is built from four stacked layers.
+
+![fig-iot-layers.svg](assets/fig-iot-layers.svg)
+*The four layers, and the modules that work in each one.*
 
 | Layer | What it is | Examples | Where it lives in this course |
 |-------|-----------|----------|-------------------------------|
@@ -100,13 +106,14 @@ Module 2    GPIO: Output & Input
 Module 3    Sensors: Analog & Digital
 Module 4    Firmware Patterns & Code Structure
 ──────────────────────────────────────────────
-Module 5    SSC-Client Library
-Module 6    MQTT + SSC Device Registration
-Module 7    Publish Telemetry → SSC Dashboard
+Module 5    Connect with the SSC Template
+Module 6    MQTT & SSC Device Registration
+Module 7    Wire Your Parts, See Real Data
 Module 8    SSC Dashboard Walkthrough & Widget Creation
-Module 9    Receive Commands ← SSC Dashboard
+Module 9    Control the Device from the Cloud
 ──────────────────────────────────────────────
 Module 10   OTA Firmware Update (bonus)
+Reference   Swap Your Parts: any part that fits the role
 ```
 
 Modules 1–4 stay in Layers 1–2 (physical hardware, wiring, non-blocking firmware). Modules 5–9 move up into Layers 3–4 (connectivity to the ssc-client and the SSC cloud platform, dashboards, remote commands). Module 10 is an optional advanced bonus covering over-the-air firmware updates.
@@ -126,7 +133,7 @@ Before Module 1, install the toolchain:
 
 Full driver setup (Windows CP210x/CH340 USB-to-serial) and your first working project are covered in [module-01-mcu-toolchain-serial](module-01-mcu-toolchain-serial.md) — this module only needs the extension installed and opening without errors.
 
-**Your hardware kit.** No hardware is needed for Module 0, but before Module 1 check your kit against the full parts list — the SSN32 board, DS18B20, LED, button module, potentiometer, breadboard, resistors, and jumper wires — in the [project-setup-guide](project-setup-guide.md) ("What's in your kit").
+**Your hardware kit.** No hardware is needed for Module 0, but before Module 1 check your kit against the full parts list — the SSN32 board, DS18B20, LED, button module, potentiometer, breadboard, resistors, and jumper wires — in the [project-setup-guide](project-setup-guide.md) ("Check your kit"). The labs name one part for each job, but any part that does the same job works: see [swap-your-parts](swap-your-parts.md).
 
 ---
 

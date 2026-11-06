@@ -13,11 +13,16 @@
 //  Everything the course wires to the SSN32 lives in this file:
 //
 //    DS18B20 temperature   GPIO 32  (+ 4.7 kΩ or 5.1 kΩ pull-up to 3.3 V)
-//    Potentiometer / LDR   GPIO 34  (analog, 0–100 %)
-//    Push button           GPIO 4   (plain button to GND, or the kit's
+//    Varying input         GPIO 34  (analog, 0–100 %): potentiometer, 3296
+//                                    trimmer, or an LDR / NTC + 10 kΩ to GND
+//    On/off input          GPIO 4   (4-leg switch to GND, or the kit's
 //                                    3-pin module: OUT → GPIO 4)
-//    LED                   GPIO 2   (the SSN32's on-board LED; an external
-//                                    LED + 220 Ω on GPIO 2 lights with it)
+//    On/off output         GPIO 2   (the SSN32's on-board LED; an external
+//                                    LED + 220 Ω, or a buzzer through a
+//                                    transistor, switches with it)
+//
+//  The code reads the pin, not the part: any part that does the same job
+//  works with no change here (docs/swap-your-parts.md).
 //
 //  SSCApp calls sensorRead() every publish_interval_ms (10 s by default) and
 //  publishes the result. It ALWAYS publishes all four values, even if nothing

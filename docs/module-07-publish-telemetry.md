@@ -6,7 +6,7 @@
 
 **Estimated time:** 1.5–2 hours.
 
-**Deliverable:** Real temperature, potentiometer and button values updating in the SSC dashboard every publish interval: holding the sensor makes the temperature rise, turning the knob moves `pot`, pressing the button shows `button = 1`.
+**Deliverable:** Real temperature, analog and button values updating in the SSC dashboard every publish interval: holding the sensor makes the temperature rise, turning the knob (or covering the LDR) moves `pot`, pressing the button shows `button = 1`.
 
 ---
 
@@ -14,14 +14,14 @@
 
 The template's `lib/sensor/sensor.cpp` already reads **every part used in this course** and publishes them all, every interval (10 s by default):
 
-| Part | Pin | Name in the payload | Value |
-|------|-----|---------------------|-------|
-| DS18B20 temperature sensor | GPIO 32 | `temperature` | °C (empty if no sensor is found) |
-| Potentiometer (or LDR) | GPIO 34 | `pot` | 0–100 % |
-| Push button | GPIO 4 | `button` | `1` pressed, `0` not pressed |
-| LED | GPIO 2 (on-board LED) | `led` | `1` on, `0` off (you switch it from the cloud in Module 9) |
+| Role | Pin | Name in the payload | Value | Parts that fit |
+|------|-----|---------------------|-------|----------------|
+| Digital sensor | GPIO 32 | `temperature` | °C (empty if no sensor is found) | DS18B20 |
+| Varying input | GPIO 34 | `pot` | 0–100 % | Potentiometer, 3296 trimmer, LDR + 10 kΩ, NTC + 10 kΩ |
+| On/off input | GPIO 4 | `button` | `1` pressed, `0` not pressed | 4-leg switch, 3-pin button module, 4N35 optocoupler |
+| On/off output | GPIO 2 (on-board LED) | `led` | `1` on, `0` off (you switch it from the cloud in Module 9) | LED + 220 Ω, active buzzer through a transistor |
 
-These are the **same pins you used in Modules 2–4**, so your breadboard wiring carries straight over.
+These are the **same pins and roles you used in Modules 2–4**, so your breadboard wiring carries straight over, whichever parts you chose. The template reads the *role*, so it works with any part in the last column and **no code change**. (The names in the payload stay the same: an LDR on GPIO 34 is still sent as `pot`.) Wiring for every option: [swap-your-parts](swap-your-parts.md).
 
 > **Why it publishes even with nothing wired:** a device that stops publishing is marked offline. So the template always sends all four values. A missing DS18B20 is sent as "no value" (not a made-up number), so you can never mistake a fake reading for a real one.
 
@@ -29,21 +29,28 @@ These are the **same pins you used in Modules 2–4**, so your breadboard wiring
 
 ## 2. Wire everything
 
-Unplug the USB cable while you wire.
+Unplug the USB cable while you wire. It's the same wiring as Modules 2 and 3:
+
+![wire-led-button.svg](assets/wire-led-button.svg)
+*GPIO 2 and GPIO 4, as in Module 2.*
+
+![wire-analog-ds18b20.svg](assets/wire-analog-ds18b20.svg)
+*GPIO 34 and GPIO 32, as in Module 3.*
 
 | Part | Part pin | SSN32 pin |
 |------|----------|-----------|
 | **DS18B20** | VCC (red) | 3.3 V |
 | | GND (black) | GND |
 | | DATA (yellow) | GPIO 32, **plus a 4.7 kΩ (or 5.1 kΩ) resistor from DATA to 3.3 V** |
-| **Potentiometer** | one outer leg | 3.3 V |
+| **Potentiometer** or **3296 trimmer** | one outer leg | 3.3 V |
 | | middle leg (wiper) | GPIO 34 |
 | | other outer leg | GND |
-| **Button**, plain 2-leg | one leg | GPIO 4 |
-| | other leg | GND |
-| **Button**, kit 3-pin module *(instead of plain)* | VCC / GND / OUT | 3.3 V / GND / GPIO 4 |
+| *or* **LDR / NTC** *(instead of the pot)* | one leg / other leg | 3.3 V / GPIO 34, plus **10 kΩ from GPIO 34 to GND** |
+| **4-leg switch** | one leg / the diagonally opposite leg | GPIO 4 / GND |
+| *or* **3-pin button module** | VCC / GND / OUT | 3.3 V / GND / GPIO 4 |
 | **LED** *(optional)* | anode (long leg) | GPIO 2 through the 220 Ω resistor |
 | | cathode (short leg) | GND |
+| *or* **active buzzer** *(optional)* | through the 2N2222A transistor | GPIO 2 (circuit in Module 2, "Swap the output — make it beep") |
 
 ```
                  3.3V ──┬──────────────┬──────────── pot outer leg
@@ -58,7 +65,7 @@ button ────────────────────────�
 
 Notes:
 - The DS18B20's **pull-up resistor is required**: without it the sensor isn't found and `temperature` stays empty.
-- **Either kind of button works without changing any code.** At power-up the template checks which way GPIO 4 rests and treats the opposite as "pressed". So don't hold the button while the board starts.
+- **Any input part works without changing any code.** At power-up the template checks which way GPIO 4 rests and treats the opposite as "pressed". So don't hold the button while the board starts.
 - The **LED is already there**: GPIO 2 drives the SSN32's on-board LED. An external LED on GPIO 2 simply lights together with it.
 
 ---
@@ -85,8 +92,12 @@ No re-upload needed: the template already has all the code. It just finds the pa
 |---------|----------------|
 | Hold the DS18B20 in your hand for 20 s | `temperature` rises a degree or more |
 | Turn the potentiometer fully one way, then the other (a multi-turn trimmer takes ~25 turns each way) | `pot` goes to about 0, then about 100 |
+| *(LDR instead)* Cover it, then shine a phone torch on it | `pot` drops low, then climbs high |
 | Press the button once, quickly | `button` shows `1` for one publish, then `0` |
 | Hold the button down | `button` stays `1` |
+
+![fig-button-latch.svg](assets/fig-button-latch.svg)
+*A tap between two publishes is remembered and sent as button = 1.*
 
 > **Why does a quick tap still show up?** The button is only *reported* every 10 s, but the template *watches* it all the time: a press at any moment is remembered until the next publish. Otherwise you'd have to hold the button for up to 10 seconds to be sure it was seen.
 
@@ -134,6 +145,9 @@ You never call `publishTelemetry` yourself. `SSCApp` calls `sensorRead()` on its
 
 ## 5. The payload and the decoder
 
+![fig-payload.svg](assets/fig-payload.svg)
+*The 18-byte payload: a random nonce, then one 4-byte number per value, in r.add() order.*
+
 The template sends a compact hex string: a **4-character random nonce**, then **8 hex characters (one IEEE-754 float) per value**, in the `r.add()` order:
 
 ```
@@ -170,6 +184,7 @@ If the two lists don't match, every value after the mismatch lands in the wrong 
 |---------|-------|-----|
 | `[Sensor] DS18B20 not found`, `temperature` empty | Missing pull-up, wrong pin or loose wire | Check the resistor from DATA to 3.3 V and that DATA is on GPIO 32 |
 | `temperature` reads exactly `85` | 85 °C is the sensor's power-on value: its measurement never finished | Usually the red VCC wire isn't on 3.3 V. Check it |
+| `pot` stuck near 0 % or 100 % with an LDR or NTC | The 10 kΩ from GPIO 34 to GND is missing | Add it: the LDR or NTC is only half of the divider |
 | `pot` jumps around randomly | Nothing (or a loose wire) on GPIO 34 | Check the middle leg goes to GPIO 34 and the outer legs to 3.3 V and GND |
 | `pot` stays at 100 % (or 0 %) whatever you do | A multi-turn trimmer sitting at one end, a GND (or 3.3 V) wire not connected, or a broken trimmer | A trimmer (blue box, brass screw) needs about 25 turns end to end and never stops: keep turning the other way. Then touch the GPIO 34 wire to GND: if Serial shows about 0 %, the board is fine and the pot or its wiring is the problem. Meter the trimmer (Module 3 box) and swap it if dead |
 | `temperature` empty or wrong although the wiring looks right | A bad jumper wire or a faulty board | Swap the jumper wires one by one, then try another SSN32. Breadboard jumpers fail more often than you'd expect |

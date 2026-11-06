@@ -6,7 +6,7 @@
 
 **Estimated time:** 2–3 hours (reading + lab)
 
-**Deliverable:** Smooth analog percentage from a potentiometer and live DS18B20 temperature readings — both running in one `loop()` with no blocking.
+**Deliverable:** Smooth analog percentage from your analog part (potentiometer, trimmer, LDR or thermistor) and live DS18B20 temperature readings — both running in one `loop()` with no blocking.
 
 ---
 
@@ -19,6 +19,9 @@
 | Noise      | Susceptible to electrical noise | Immune — data is encoded                           |
 | Wiring     | One signal wire                 | One or two signal wires; more complex protocol     |
 | Examples   | LDR, potentiometer, thermistor  | DS18B20, BME280, DHT22                             |
+
+![fig-analog-digital.svg](assets/fig-analog-digital.svg)
+*Analog: a voltage whose level means something. Digital: a coded message of HIGHs and LOWs.*
 
 Analog sensors are simple to wire but produce noisy readings. Digital sensors require a library but give clean, calibrated data. The DS18B20 is the right choice for temperature in IoT applications — it is accurate to ±0.5 °C out of the box.
 
@@ -34,7 +37,20 @@ The lab uses the potentiometer and the DS18B20. The kit has more, and each one s
 | **DS18B20** | Digital (1-Wire) | Temperature in °C, already calibrated | 4.7 kΩ pull-up | Cold rooms, aquariums, compost: the course's main sensor |
 | **Push button** | Digital | Pressed or not | None (`INPUT_PULLUP`, Module 2) | Any "a person did something" input |
 
-The thermistor and the DS18B20 both measure temperature: one is analog and cheap, the other is digital and accurate. The bonus at the end of the lab lets you compare them side by side.
+| <img src="assets/kit-potentiometer.png" width="90"> | <img src="assets/photo-trimmer-3296.jpg" width="90"> | <img src="assets/photo-ldr.jpg" width="90"> | <img src="assets/photo-ntc.jpg" width="90"> | <img src="assets/kit-ds18b20.png" width="90"> |
+|:---:|:---:|:---:|:---:|:---:|
+| potentiometer | 3296 trimmer | LDR | NTC thermistor | DS18B20 |
+
+The thermistor and the DS18B20 both measure temperature: one is analog and cheap, the other is digital and accurate. The swap at the end of the lab lets you compare them side by side.
+
+### Same role, same code
+
+Like Module 2, think in **roles**. GPIO 34 is the **varying input** role: the code reads a voltage from 0 to 3.3 V and turns it into 0–100 %. The potentiometer, the trimmer, the LDR and the thermistor all make such a voltage, so **all four work with the same code**. Only what the percentage *means* changes: how far it's turned, how bright, how warm.
+
+![fig-roles-analog.svg](assets/fig-roles-analog.svg)
+*Four parts fit the varying-input job on GPIO 34. The NTC senses temperature too, but it cannot replace the DS18B20.*
+
+GPIO 32 is a different role: the **digital sensor** bus. The DS18B20 sends coded messages, not a voltage, so the thermistor can't replace it there even though both measure temperature. Swap within a role, not across roles. Wiring for every option: [swap-your-parts](swap-your-parts.md).
 
 ---
 
@@ -56,6 +72,9 @@ float percent = (analogRead(34) / 4095.0f) * 100.0f;
 
 Use `4095.0f` (not `4095`) to force floating-point division.
 
+![fig-adc.svg](assets/fig-adc.svg)
+*The same reading three ways: the voltage on the pin, the raw ADC number, and what it means.*
+
 ### Voltage dividers: why the pot needs no extra resistor
 
 The ADC measures a **voltage**, so an analog sensor has to turn what it senses into one. Two resistors in series between 3.3 V and GND do that: the voltage at the point between them depends on how the 3.3 V is shared between the two. That is a **voltage divider**.
@@ -63,11 +82,8 @@ The ADC measures a **voltage**, so an analog sensor has to turn what it senses i
 - A **potentiometer or trimmer** *is* a divider already: one long resistor between its outer pins, and the wiper slides along it. Wiper straight to GPIO 34, outer pins to 3.3 V and GND, **no extra resistor**.
 - An **LDR** or **thermistor** is only *one* resistor that changes. Add a fixed **10 kΩ** as the second half:
 
-```
-3.3 V ──[ LDR or NTC ]──┬──[ 10 kΩ ]── GND
-                        │
-                     GPIO 34
-```
+![fig-divider.svg](assets/fig-divider.svg)
+*Left: a pot is a complete divider. Right: an LDR or NTC needs a fixed 10 kΩ as its other half.*
 
 With the sensor on top, more light (LDR) or more heat (NTC) lowers its resistance, so more of the 3.3 V reaches GPIO 34 and the percentage **rises**. Swap the two parts and it falls instead. Both are fine; you just read it the other way round.
 
@@ -109,11 +125,11 @@ Calling `readAnalog()` every 50–100 ms fills the buffer quickly and produces a
 
 ## 4. Digital Sensors and 1-Wire
 
-The **DS18B20** communicates over the **1-Wire** protocol — a single data line that carries both power and data. Up to 64 sensors can share one wire, each identified by a unique 64-bit ROM address.
+The **DS18B20** communicates over the **1-Wire** protocol — a single data line that carries both power and data. Several sensors can share one wire, each identified by its own unique 64-bit ROM address (the course code reads just the first one).
 
 ### Why 1-Wire for temperature?
 
-- One GPIO pin reads an arbitrary number of sensors
+- One GPIO pin can read several sensors
 - Data is noise-immune (digital encoding)
 - Factory-calibrated: no user calibration required
 - Wide range: −55 °C to +125 °C; ±0.5 °C accuracy from −10 to +85 °C
@@ -226,16 +242,31 @@ if (tempPending && now - tempRequestedAt >= 800) {
 
 Two events per 2-second cycle: trigger at the top, read 800 ms later. The loop is free the entire time.
 
+![fig-ask-read.svg](assets/fig-ask-read.svg)
+*Ask now, read later: the conversion runs on its own while the loop keeps going.*
+
 ---
 
-## 7. Lab — Potentiometer + DS18B20
+## 7. Lab — Analog Input + DS18B20
 
 ### Hardware
 
+**Analog input (GPIO 34): pick one.** The code is the same for all of them.
+
+| Part | Connection | Extra part |
+|------|-----------|------------|
+| Potentiometer (knob) | Middle leg (wiper) → GPIO 34; outer legs → 3.3 V and GND | None |
+| *or* 3296 trimmer | Same: middle pin → GPIO 34; outer pins → 3.3 V and GND (see the box below) | None |
+| *or* LDR | 3.3 V → LDR → GPIO 34 → 10 kΩ → GND | 10 kΩ |
+| *or* NTC thermistor | 3.3 V → NTC → GPIO 34 → 10 kΩ → GND | 10 kΩ |
+
+![wire-analog-ds18b20.svg](assets/wire-analog-ds18b20.svg)
+*Lab wiring: the pot on GPIO 34, the DS18B20 on GPIO 32 with its pull-up.*
+
+**Digital sensor (GPIO 32):**
+
 | Component | Connection |
 |-----------|-----------|
-| Potentiometer wiper | GPIO 34 |
-| Potentiometer ends | 3.3 V and GND |
 | DS18B20 VCC | 3.3 V |
 | DS18B20 DATA | GPIO 32 (with 4.7 kΩ to 3.3 V) |
 | DS18B20 GND | GND |
@@ -343,7 +374,7 @@ Module 3 ready.
 
 Both sensors report independently. Neither blocks the other.
 
-### Bonus — swap the pot for the LDR or the thermistor
+### Swap the analog part — LDR or thermistor
 
 No code change: the program reads whatever voltage is on GPIO 34. Take the potentiometer out and build the divider from Section 2 instead (sensor from 3.3 V to GPIO 34, **10 kΩ** from GPIO 34 to GND).
 
@@ -354,17 +385,18 @@ No code change: the program reads whatever voltage is on GPIO 34. Take the poten
 
 The thermistor shows the trade-off from Section 1: it reacts to heat, but "57 %" is not a temperature. Turning it into °C needs the part's datasheet, a formula and a calibration against a real thermometer. The DS18B20 gives °C directly, which is why the course uses it.
 
-Put the potentiometer back when you're done: Modules 4–7 expect it. (In Module 7, whatever is on GPIO 34 is published as `pot`, so you can bring the LDR back then to put light on your dashboard.)
+Keep whichever part you like: Module 4 reuses this code, and from Module 7 the template reads GPIO 34 the same way. (From Module 7 the template publishes whatever is on GPIO 34 as `pot`. With the LDR, that puts the light level on your dashboard; just title the widget "Light level".)
 
 ---
 
 ## 8. Deliverable Checklist
 
-- [x] Potentiometer reading prints a rolling average as a percentage every 100 ms
+- [x] Your analog part (pot, trimmer, LDR or thermistor) prints a rolling average as a percentage every 100 ms
 - [x] DS18B20 temperature prints every 2 seconds
 - [x] Both run in the same `loop()` with no `delay()`
 - [x] No `DEVICE_DISCONNECTED_C` errors (sensor is wired correctly with pull-up)
 - [x] You can explain why the 4.7 kΩ pull-up is required
+- [x] You can explain why the LDR needs a 10 kΩ but the pot doesn't, and why the thermistor can't replace the DS18B20 on GPIO 32
 
 ---
 

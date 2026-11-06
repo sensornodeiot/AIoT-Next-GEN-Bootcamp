@@ -16,6 +16,9 @@
 
 Up to now you wrote every line. Connecting a device to a cloud platform properly means a *lot* of plumbing: Wi-Fi with auto-reconnect, an MQTT client, a birth/offline announcement, publishing telemetry on a schedule, receiving commands, and over-the-air updates. Writing all of that by hand is error-prone.
 
+![fig-system.svg](assets/fig-system.svg)
+*The whole system: data goes up on a timer, commands come down when someone clicks, and the board confirms each one.*
+
 So instead you use the **SSC template** — a ready-made firmware (called `SSCApp`) that already contains all of it. Your job is not to *write* it, but to:
 
 1. **Flash** the template to your board.
@@ -68,7 +71,7 @@ Everything — Wi-Fi, MQTT, the periodic telemetry that keeps you online, remote
 
 ## 4. Flash the template
 
-▶ Open the **`sensorclouds-template`** folder in PlatformIO: house icon → **Open Project** → `AIoT-Next-GEN-Bootcamp/sensorclouds-template` → **Open** (same as [project-setup-guide](project-setup-guide.md) Section 5). Plug in the SSN32.
+▶ Open the **`sensorclouds-template`** folder in PlatformIO: house icon → **Open Project** → `AIoT-Next-GEN-Bootcamp/sensorclouds-template` → **Open** (same as [project-setup-guide](project-setup-guide.md) Step 4). Plug in the SSN32.
 
 ▶ Click **→ Upload**. 👁 The first build takes a minute or two (it downloads the MQTT and JSON libraries), then ends with `[SUCCESS]`.
 
@@ -80,7 +83,12 @@ Everything — Wi-Fi, MQTT, the periodic telemetry that keeps you online, remote
 
 ## 5. Configure it in the browser (the first-boot portal)
 
+![fig-portal-flow.svg](assets/fig-portal-flow.svg)
+*First boot: join the board's own Wi-Fi, fill in the form, reboot.*
+
 The very first boot has **no saved config**, so the device starts a **configuration portal**:
+
+> **ESP32 DevKit (ESP-32UE) users:** screw the antenna onto the small gold connector before this step. Without it, Wi-Fi may not connect at all, or only very close to the router.
 
 👁 Serial shows something like:
 ```
@@ -115,7 +123,7 @@ The very first boot has **no saved config**, so the device starts a **configurat
 
 ▶ **Step 5f — Restart.** You're back on **Status**, which now shows **3 of 3** set up. Scroll down to **Restart Device** → **Reboot** → **Restart Now**. 👁 After about 10 seconds the box shows **Restart complete**: the `SSN32-Config` network disappears because the device is now joining *your* Wi-Fi. Reconnect your phone or laptop to your normal Wi-Fi.
 
-> **To change any of this later:** press **EN** and let go, then straight away press and hold **BOOT** for about 5 seconds, until Serial shows `[Portal] Starting configuration portal`. (Don't hold BOOT *while* pressing EN or plugging in: that starts the chip's upload mode instead.)
+> **To change any of this later:** press **EN** and let go, then straight away press and hold **BOOT** for about 5 seconds, until Serial shows `[Portal] Starting configuration portal`. (Don't hold BOOT *while* pressing EN or plugging in: that starts the chip's upload mode instead.) ESP32 mini board: press **RST**, then hold a jumper wire from `IO0` to `GND` for 5 seconds, because it has no BOOT button.
 
 ---
 

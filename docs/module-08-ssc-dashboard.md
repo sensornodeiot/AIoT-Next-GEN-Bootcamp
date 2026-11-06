@@ -205,19 +205,19 @@ Build a dashboard named `[YourName] — IoT Module` with seven panels, one for e
 
 *(This command already works — the template you flashed in Module 5 handles `config:set_interval` out of the box, so clicking the button changes the publish rate right away. In Module 9 you'll drive it deliberately and watch the full ACK lifecycle.)*
 
-### Panel 5 — Gauge (Potentiometer)
+### Panel 5 — Gauge (analog input)
 
 | Setting | Value |
 |---------|-------|
 | Widget | Gauge |
-| Title | Knob position |
+| Title | Knob position *(or whatever is on GPIO 34: "Light level" for an LDR)* |
 | Channel | Device → channel `pot` |
 | Unit | % |
 | Min | 0 |
 | Max | 100 |
 | Thresholds | Green 0–70, Yellow 70–90, Red 90–100 |
 
-Turn the knob and watch the needle follow at the next publish.
+Turn the knob (or cover the LDR) and watch the needle follow at the next publish. The channel is still called `pot` whatever part is on GPIO 34; the widget title is where you say what it really is.
 
 ### Panel 6 — Value Card (Button)
 
@@ -244,7 +244,7 @@ Click **LED on**: the SSN32's on-board LED (and your external LED on GPIO 2, if 
 
 ### Layout
 
-Arrange panels so the status indicator is in the top-left corner (most important), the line chart spans the top row, the temperature value card, knob gauge and button card sit side by side in the middle row, and the command buttons are at the bottom.
+Arrange panels so the status indicator is in the top-left corner (most important), the line chart spans the top row, the temperature value card, analog gauge and button card sit side by side in the middle row, and the command buttons are at the bottom.
 
 ---
 
@@ -254,7 +254,7 @@ Arrange panels so the status indicator is in the top-left corner (most important
 - [ ] Line chart shows at least 30 minutes of temperature history with data points visible
 - [ ] Value card shows the current temperature with °C unit
 - [ ] Status indicator shows **online** when device is connected
-- [ ] Gauge follows the potentiometer; button card shows `1` after a press
+- [ ] Gauge follows your analog part (knob, trimmer or LDR); button card shows `1` after a press
 - [ ] Interval command button works — clicking it changes the publish interval (the template handles it)
 - [ ] LED on / LED off buttons switch the LED on the board
 - [ ] Dashboard shared with instructor (read-only link or tenant access)

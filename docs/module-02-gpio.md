@@ -59,6 +59,19 @@ Every GPIO pin operates at **3.3 V logic**. HIGH = 3.3 V, LOW = 0 V. Never conne
 
 ## 2. Controlling an LED (Output)
 
+### Using the breadboard
+
+<img src="assets/kit-breadboard.png" width="150">
+
+Every lab is built on the breadboard, so it's worth knowing what's joined inside it. The holes are joined in short strips by metal clips under the plastic:
+
+1. Each **short column of 5 holes** (a–e, or f–j) is one wire. Put a part's leg and a jumper wire in the same column and they are connected.
+2. The **centre gap** separates the two halves: a–e and f–j of the same column are *not* joined.
+3. The long **rails** (red +, blue −) along the edges are joined end to end. Use one for 3V3 and one for GND.
+
+![part-breadboard.svg](assets/part-breadboard.svg)
+*What is joined inside the breadboard: short columns of five, and the long rails.*
+
 ### Ohm's law and the current-limiting resistor
 
 An LED will draw as much current as the circuit allows. Without a resistor, it pulls far more than the pin can safely give (keep each ESP32 pin to about **20 mA**; 40 mA is its absolute maximum) and can damage the LED and the pin.
@@ -70,6 +83,28 @@ Use a **220 Ω resistor** in series with the LED:
 
 Ohm's law: `I = V / R`. The LED itself always takes about 2 V, so the resistor only gets the rest:  
 `(3.3 V − 2 V) / 220 Ω ≈ 6 mA`: bright enough to see, and well within the pin limit.
+
+### Using the kit's LED
+
+<img src="assets/kit-led.png" width="170">
+
+An LED only lights **one way round**. Its two legs are different lengths:
+
+1. The **long leg** (anode, +) goes towards GPIO 2, through the 220 Ω resistor.
+2. The **short leg** (cathode, −) goes to GND. The rim of the LED is also flat on this side.
+3. Wrong way round? It simply stays dark. Turn it round; nothing is damaged.
+
+![part-led.svg](assets/part-led.svg)
+*The LED's legs: long leg towards the pin through 220 Ω, short leg (flat side) to GND.*
+
+### Which resistor is which?
+
+<img src="assets/kit-resistor-220r.png" width="130"> <img src="assets/kit-resistor-4k7.png" width="150"> <img src="assets/kit-resistor-10k.png" width="150">
+
+Resistors are marked with coloured bands, not numbers. Your kit has two styles: a beige body with 4 bands and a blue body with 5 bands. Read from the end where the bands bunch together; the last, separate band is the tolerance.
+
+![part-resistors.svg](assets/part-resistors.svg)
+*The four values used in the course, in both band styles. Not sure? Measure it with a multimeter on Ω.*
 
 ### pinMode and digitalWrite
 
@@ -194,6 +229,8 @@ Note the inverted logic — **LOW means pressed** when using `INPUT_PULLUP`.
 
 ### Using the kit's 3-pin button module
 
+<img src="assets/kit-push-button-module.png" width="190">
+
 Your kit may have a button on a small board with three pins: **GND**, **VCC** and **OUT**. The board already has its own resistor, and most of these modules work the other way round: **OUT is LOW when released and HIGH when pressed.**
 
 | Module pin | Connect to |
@@ -201,6 +238,9 @@ Your kit may have a button on a small board with three pins: **GND**, **VCC** an
 | VCC | 3.3 V |
 | GND | GND |
 | OUT | GPIO 4 |
+
+![part-button-module.svg](assets/part-button-module.svg)
+*Inside a typical 3-pin module: a resistor holds OUT LOW; pressing joins OUT to VCC, so it reads HIGH.*
 
 In the code, keep `INPUT_PULLUP` and change one line: `#define PRESSED HIGH` instead of `LOW` (the lab code below has this line at the top).
 
@@ -359,29 +399,27 @@ void loop() {
 
 Swap the LED for the kit's **active buzzer** (a **Digisound F/TCW05**: a small black cylinder, Ø 12 mm, with `+` marked on top) and your blink becomes a beep, with no code change. The button still switches between slow and fast beeps. It is loud (about 88 dB at 10 cm), so in class keep the test short.
 
+![part-buzzer.svg](assets/part-buzzer.svg)
+*The active buzzer: + is marked on top and on the longer leg. A sealed bottom means active (it beeps by itself).*
+
 **Why not wire the buzzer straight to the pin like the LED?** The F/TCW05 takes up to **30 mA**, more than a GPIO pin should give (about 20 mA). Things that need more current than a pin can give (buzzers, relays, motors, LED strips) are switched with a **transistor**: a tiny current from the pin into the transistor's **base** lets a much bigger current flow from its **collector** to its **emitter**, through the buzzer. The pin gives under 1 mA; the buzzer's current never goes through the ESP32.
 
-```
-3.3 V ──────────┬────────────┐
-                │            │
-           buzzer +       1N4007   stripe end at the top (towards +)
-          (F/TCW05)          │
-           buzzer −          │
-                │            │
-                └─────┬──────┘
-                      │
-                      C  collector ┐
-                                   │  NPN transistor
-GPIO 2 ──[ 5.1 kΩ ]── B  base      │  (2N2222A)
-                                   │
-GND ───────────────── E  emitter   ┘
-```
+![wire-buzzer.svg](assets/wire-buzzer.svg)
+*The buzzer circuit: GPIO 2 switches the 2N2222A through 5.1 kΩ; the buzzer sits between 3V3 and the collector, with the 1N4007 across it.*
 
 1. **The transistor:** your kit's is a **2N2222A**, an **NPN** type (the print is on its flat face). Other NPN parts such as `S8050` work the same; PNP parts such as `S8550` won't work in this circuit.
 2. **Find its legs.** Flat face towards you, legs down: **E B C** from left to right (emitter, base, collector).
 3. **Base resistor:** the kit's **5.1 kΩ** works; **1 kΩ**, if you have one, switches the buzzer's full 30 mA with more margin. Never connect the base straight to the pin.
 4. **Buzzer:** `+` to 3.3 V, the other leg to the collector. Its legs are 7.6 mm apart, so they sit 3 breadboard holes apart. An active buzzer like the F/TCW05 has a sealed bottom; one with the circuit board showing underneath is the *passive* kind, which only clicks here.
 5. **Diode:** put the kit's **1N4007** across the buzzer, its **stripe towards `+`**. The F/TCW05 is an *electromagnetic* buzzer: there is a small coil inside, and when a coil switches off it kicks back a voltage spike. The diode soaks it up so it can't damage the transistor. Relays and motors have coils too and need the same diode.
+
+<img src="assets/photo-2n2222a.jpg" width="80"> <img src="assets/photo-1n4007.jpg" width="170">
+
+![part-2n2222a.svg](assets/part-2n2222a.svg)
+*The 2N2222A: flat face towards you, legs E B C. A small current into B lets the buzzer current flow C → E.*
+
+![part-1n4007.svg](assets/part-1n4007.svg)
+*The 1N4007 diode: the silver stripe is the cathode. Across the buzzer, the stripe goes towards +.*
 
 > **Louder?** The F/TCW05 is rated **5 V** (it works from 3 V to 7 V), so on 3.3 V it is quieter than it can be. If your SSN32 has a **5V** pin, put the buzzer's `+` (and the diode's stripe) there instead. The 5 V only flows through the buzzer and the transistor, never into the GPIO pin, so this is safe.
 

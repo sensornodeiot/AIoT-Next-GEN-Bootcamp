@@ -55,6 +55,9 @@ Everything here joins GPIO 4 to something (GND, or 3.3 V) while it is "on". The 
 
 **Why the optocoupler is here:** in a real building the "on" signal often comes from a machine at 12–24 V ("motor running", "door closed"), which would destroy a 3.3 V pin. The 4N35 passes the signal across as light, with **no wire between the two sides**. To try it in class, use 3.3 V and the 220 Ω as the "machine signal": touch the 220 Ω end to 3.3 V and the input reads LOW. (In this demo both sides share the board's GND, so it isn't isolated yet; in a real installation the input side gets its own GND.) A real 12–24 V signal needs a bigger resistor with a higher power rating: ask your instructor before you connect one. Pin 1 is next to the dot on the chip.
 
+![part-4n35.svg](assets/part-4n35.svg)
+*The 4N35: an LED (pins 1–2) shines on a light-sensitive transistor (pins 5–4). Nothing else joins the two sides.*
+
 ---
 
 ## 4. Varying input — GPIO 34
@@ -70,6 +73,9 @@ The ADC reads a voltage between 0 and 3.3 V and the code turns it into 0–100 %
 
 **Why the pot needs no resistor and the LDR does:** the ADC needs a *voltage divider*: two resistances between 3.3 V and GND, with the pin in the middle. A potentiometer is already both halves (the wiper slides along one long resistor). An LDR or NTC is only *one* resistance that changes, so the fixed 10 kΩ is the other half. Swap the LDR and the 10 kΩ around and the reading runs the other way (bright → low). That's fine, just read it the other way round.
 
+![part-ldr-ntc.svg](assets/part-ldr-ntc.svg)
+*LDR and NTC dividers: one changing resistor plus a fixed 10 kΩ.*
+
 **What to change in code:** nothing, in any module. In the template the value is still published as **`pot`**, because the template can't know what you plugged in. On your dashboard (Module 8), just give the widget a better title, e.g. "Light level". If you want the payload itself to say `light`, rename it in `sensor.cpp` **and** in the decoder's `NAMES` list, keeping it in the **same position** (second). Then re-point your Module 8 gauge to the new `light` channel: the old `pot` channel stops getting data.
 
 ---
@@ -83,6 +89,9 @@ When GPIO 2 goes HIGH, whatever is on it turns on. On all three course boards, G
 | <img src="assets/kit-led.png" width="60"> **LED** | GPIO 2 → 220 Ω → LED long leg; short leg → GND | 220 Ω keeps the current to ~6 mA |
 | <img src="assets/photo-2n2222a.jpg" width="34"> **Active buzzer** (Digisound F/TCW05) | Through a **2N2222A** transistor: GPIO 2 → 5.1 kΩ → base; buzzer `+` → 3.3 V (or 5 V), buzzer `−` → collector; emitter → GND; 1N4007 across the buzzer, stripe towards `+` | The buzzer takes up to 30 mA, more than a pin should give. The pin only switches the transistor (< 1 mA) |
 | <img src="assets/photo-rgb-led.jpg" width="50"> **RGB LED, common-cathode type** | Long leg → GND; one colour leg → 220 Ω → GPIO 2 | Lights on HIGH, like the LED. **Don't use a common-anode RGB LED on GPIO 2**: its long leg goes to 3.3 V, which pulls GPIO 2 up while the board starts and can stop uploads (GPIO 2 helps choose the boot mode) |
+
+![part-rgb-led.svg](assets/part-rgb-led.svg)
+*The RGB LED: four legs, the longest is the common one. Only the common-cathode type is safe on GPIO 2.*
 
 The full buzzer circuit, with the transistor's leg order (E B C, flat face towards you), is in [module-02-gpio](module-02-gpio.md) ("Swap the output — make it beep").
 

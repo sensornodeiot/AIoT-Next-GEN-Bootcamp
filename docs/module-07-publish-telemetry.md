@@ -52,17 +52,6 @@ Unplug the USB cable while you wire. It's the same wiring as Modules 2 and 3:
 | | cathode (short leg) | GND |
 | *or* **active buzzer** *(optional)* | through the 2N2222A transistor | GPIO 2 (circuit in Module 2, "Swap the output — make it beep") |
 
-```
-                 3.3V ──┬──────────────┬──────────── pot outer leg
-                        │             [4.7kΩ]
-DS18B20 VCC (red) ──────┘              │
-DS18B20 DATA (yellow) ─────────────────┴──── GPIO 32
-DS18B20 GND (black) ─────────────────────── GND
-pot wiper (middle) ─────────────────────── GPIO 34
-pot other outer leg ────────────────────── GND
-button ──────────────────────────────────── GPIO 4 ... other leg to GND
-```
-
 Notes:
 - The DS18B20's **pull-up resistor is required**: without it the sensor isn't found and `temperature` stays empty.
 - **Any input part works without changing any code.** At power-up the template checks which way GPIO 4 rests and treats the opposite as "pressed". So don't hold the button while the board starts.

@@ -87,6 +87,32 @@ The ADC measures a **voltage**, so an analog sensor has to turn what it senses i
 
 With the sensor on top, more light (LDR) or more heat (NTC) lowers its resistance, so more of the 3.3 V reaches GPIO 34 and the percentage **rises**. Swap the two parts and it falls instead. Both are fine; you just read it the other way round.
 
+### Using the kit's potentiometer
+
+<img src="assets/kit-potentiometer.png" width="170">
+
+Three legs, one job: turning the knob moves a sliding contact (the **wiper**) along a resistive track.
+
+1. The two **outer legs** go to 3V3 and GND (either way round; swapping them only makes the % run backwards).
+2. The **middle leg** is the wiper: it goes **straight to GPIO 34**, with no resistor.
+3. Turn the knob: the wiper picks off any voltage from 0 to 3.3 V.
+
+![part-pot.svg](assets/part-pot.svg)
+*Inside the potentiometer: the wiper (middle leg) slides along the track between 3.3 V and 0 V.*
+
+### Using the kit's LDR and NTC thermistor
+
+<img src="assets/photo-ldr.jpg" width="110"> <img src="assets/photo-ntc.jpg" width="150">
+
+Both are a **single resistor that changes**: the LDR with light, the NTC with temperature. Neither has a third leg, so each needs the kit's **10 kΩ** as the other half of the divider.
+
+1. 3V3 → LDR (or NTC) → GPIO 34.
+2. GPIO 34 → 10 kΩ → GND.
+3. Legs either way round: they have no + or −.
+
+![part-ldr-ntc.svg](assets/part-ldr-ntc.svg)
+*The LDR and the NTC each make a divider with a fixed 10 kΩ. More light, or more heat, makes the % rise.*
+
 ### ESP32 ADC caveats
 
 - Only certain pins support ADC: GPIO 32–39 on the SSN32 (use GPIO 34 for input-only analog reads)
@@ -134,17 +160,18 @@ The **DS18B20** communicates over the **1-Wire** protocol — a single data line
 - Factory-calibrated: no user calibration required
 - Wide range: −55 °C to +125 °C; ±0.5 °C accuracy from −10 to +85 °C
 
-### Wiring
+### Using the kit's DS18B20 probe
 
-```
-SSN32 3.3V ──────────────────── DS18B20 VCC (red)
-                │
-               [4.7kΩ]          ← pull-up resistor (required)
-                │
-SSN32 GPIO 32 ──┤─────────────── DS18B20 DATA (yellow)
+<img src="assets/kit-ds18b20.png" width="200"> <img src="assets/kit-screw-terminal-3pin.png" width="110">
 
-SSN32 GND ──────────────────── DS18B20 GND (black)
-```
+The sensor sits in the steel tip; its three thin wires are easiest to use through the kit's **3-pin screw terminal**, which plugs into the breadboard.
+
+1. Screw the three wires into the terminal: **red** = VCC, **black** = GND, **yellow** = DATA.
+2. Red → **3V3**, black → **GND**, yellow → **GPIO 32**.
+3. Add the **4.7 kΩ** (or 5.1 kΩ) from red to yellow: the pull-up.
+
+![part-ds18b20.svg](assets/part-ds18b20.svg)
+*The DS18B20 probe through the screw terminal, with the pull-up between red (3V3) and yellow (DATA).*
 
 The 4.7 kΩ pull-up between VCC and DATA is **required** — without it, the bus has no defined idle state and communication will fail.
 
@@ -276,6 +303,9 @@ Two events per 2-second cycle: trigger at the top, read 800 ms later. The loop i
 > - It has **no end stop**. At either end it keeps turning without changing anything, so "it turns but nothing happens" usually means you're at an end: turn the other way.
 >
 > If it still reads the same after 25+ turns each way, check it with a multimeter (power off): about the printed value between the two outer pins, and a changing value from the middle pin to one outer pin while you turn. If not, the trimmer is broken; swap it.
+
+![part-trimmer.svg](assets/part-trimmer.svg)
+*The 3296 trimmer: three pins in a row, the middle one is the wiper. About 25 turns end to end, and no end stop.*
 
 ### platformio.ini
 

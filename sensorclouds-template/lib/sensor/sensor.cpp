@@ -148,6 +148,3 @@ bool sensorRead(char* hexOut, size_t hexLen) {
     SensorReading r = doRead();
     return encodeHex(r, hexOut, hexLen);
 }
-
-// The workshop template does not use the second (power-meter) publish path.
-bool powerRead(char* /*hexOut*/, size_t /*hexLen*/) { return false; }

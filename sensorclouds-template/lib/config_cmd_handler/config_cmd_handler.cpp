@@ -27,8 +27,6 @@ void ConfigCmdHandler::handleMessage(const char* topic, uint8_t* payload, unsign
 
     if (strcmp(command, "config:set_interval") == 0) {
         handleSetInterval(doc);
-    } else if (strcmp(command, "config:set_power_interval") == 0) {
-        handleSetPowerInterval(doc);
     } else if (strcmp(command, "config:set_led") == 0) {
         handleSetLed(doc);
     } else {
@@ -66,37 +64,6 @@ void ConfigCmdHandler::handleSetInterval(JsonDocument& doc) {
 
     Serial.printf("[CfgCmd] publish_interval_ms = %u (saved)\n", newInterval);
     sendAck(cmdId, "config:set_interval", "ok");
-}
-
-void ConfigCmdHandler::handleSetPowerInterval(JsonDocument& doc) {
-    const char* cmdId = doc["commandId"] | "unknown";
-    JsonVariant param = doc["parameters"]["power_publish_interval_ms"];
-
-    if (param.isNull() || !param.is<uint32_t>()) {
-        sendAck(cmdId, "config:set_power_interval", "failed",
-                "Missing or invalid power_publish_interval_ms");
-        return;
-    }
-
-    uint32_t newInterval = param.as<uint32_t>();
-    if (newInterval < MIN_INTERVAL_MS || newInterval > MAX_INTERVAL_MS) {
-        char errMsg[80];
-        snprintf(errMsg, sizeof(errMsg),
-                 "power_publish_interval_ms out of range (%u-%u)",
-                 MIN_INTERVAL_MS, MAX_INTERVAL_MS);
-        sendAck(cmdId, "config:set_power_interval", "failed", errMsg);
-        return;
-    }
-
-    config_->power_publish_interval_ms = newInterval;
-
-    if (!store_->save(*config_)) {
-        sendAck(cmdId, "config:set_power_interval", "failed", "NVS save failed");
-        return;
-    }
-
-    Serial.printf("[CfgCmd] power_publish_interval_ms = %u (saved)\n", newInterval);
-    sendAck(cmdId, "config:set_power_interval", "ok");
 }
 
 void ConfigCmdHandler::handleSetLed(JsonDocument& doc) {

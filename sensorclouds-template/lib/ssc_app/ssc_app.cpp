@@ -64,7 +64,7 @@ void SSCApp::update() {
     }
     otaHandler_.update();
 
-    // Periodic vibration telemetry
+    // Periodic telemetry: sensorRead() packs every value into one payload
     if (sscClient_.isConnected() &&
         (millis() - lastPublishMs_ >= config_.publish_interval_ms)) {
         char hex[SENSOR_HEX_BUF_LEN];
@@ -73,18 +73,6 @@ void SSCApp::update() {
         }
         lastPublishMs_ = millis();
     }
-
-    // Periodic power meter telemetry (separate interval + topic)
-#if POWER_METER_ENABLED
-    if (sscClient_.isConnected() &&
-        (millis() - lastPowerPublishMs_ >= config_.power_publish_interval_ms)) {
-        char hex[POWER_HEX_BUF_LEN];
-        if (powerRead(hex, sizeof(hex))) {
-            sscClient_.publishTelemetry(hex);
-        }
-        lastPowerPublishMs_ = millis();
-    }
-#endif
 }
 
 void SSCApp::onMqttCommand(const char* topic, uint8_t* payload, unsigned int len) {

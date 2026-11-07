@@ -7,9 +7,9 @@ No prior embedded or IoT experience required. Basic programming concepts (variab
 ## Hardware required
 
 - SSN32 Dev Module
-- DS18B20 temperature sensor + 4.7 kΩ resistor (1-Wire pull-up)
+- DS18B20 temperature sensor + 4.7 kΩ resistor (1-Wire pull-up; 5.1 kΩ works too)
 - LED + 220 Ω resistor
-- Push button
+- Push button (plain 2-leg, or the 3-pin GND/VCC/OUT module)
 - Potentiometer or LDR
 - Breadboard, jumper wires, USB cable
 - SSC platform account and a registered device
@@ -17,16 +17,17 @@ No prior embedded or IoT experience required. Basic programming concepts (variab
 ## Software required
 
 - VS Code + PlatformIO extension
-- Git (to clone this repo)
 - SSC platform dashboard (web browser)
+
+No Git needed: you download the course as a ZIP.
 
 ## Getting started
 
-```
-git clone https://github.com/sensornodeiot/AIoT-Next-GEN-Bootcamp.git
-```
+**First time on this computer? Follow the [Project Setup Guide](docs/project-setup-guide.md)**: it walks through installing VS Code, PlatformIO and the USB driver on Windows and Mac, step by step.
 
-Then **open a single project folder** in VS Code (File → Open Folder) — never the parent repo, or PlatformIO gets confused by the multiple `platformio.ini` files. Which folder to open depends on the module (below).
+1. On this page click the green **`<> Code`** button → **Download ZIP**.
+2. Unzip it to a short path: `C:\IoT` on Windows, an `IoT` folder in your home folder on Mac. Rename the folder to `AIoT-Next-GEN-Bootcamp`.
+3. In VS Code, open **one module folder** (PlatformIO Home → **Open Project**), never the whole course folder, or PlatformIO gets confused by the multiple `platformio.ini` files. Which folder to open depends on the module (below).
 
 ## Lessons
 
@@ -37,7 +38,7 @@ The full written lessons live in **[`docs/`](docs/)** — start with **[docs/REA
 | Modules | What you open | Env | You… |
 |---------|---------------|-----|------|
 | **1–4** (fundamentals) | one starter folder **per module** — `module-01-…`, `module-02-gpio`, `module-03-sensors`, `module-04-firmware-patterns` | `ssn32` | write the firmware, following each lesson |
-| **5–10** (connectivity) | **one shared project — `sensorclouds-template/`** | `esp32dev` | flash it, **configure** it in a browser, and edit only `lib/sensor/sensor.cpp` (+ add commands) |
+| **5–10** (connectivity) | **one shared project — `sensorclouds-template/`** | `esp32dev` | upload it, **configure** it in a browser, wire your parts. No code to write: it already reads the DS18B20, potentiometer, button and LED |
 
 Build / flash / monitor is always the same, swapping the env:
 ```
@@ -65,12 +66,12 @@ AIoT-Next-GEN-Bootcamp/
 
 ## Modules 5–10 use the SSCApp template
 
-The `sensorclouds-template/` is a ready-made firmware (`SSCApp`) that already does WiFi + auto-reconnect, MQTT, periodic telemetry, remote commands, and OTA. You don't rebuild it per module — you use the same project throughout:
+The `sensorclouds-template/` is a ready-made firmware (`SSCApp`) that already does WiFi + auto-reconnect, MQTT over TLS (port 8883), periodic telemetry, remote commands, and OTA. It already reads every part in the kit and publishes them all every 10 s: `temperature` (DS18B20, GPIO 32), `pot` (GPIO 34), `button` (GPIO 4) and `led` (GPIO 2, the on-board LED). You don't rebuild it per module — you use the same project throughout:
 
-- **Module 5** — flash it; configure WiFi + SSC credentials in the captive web portal (device becomes AP `SSN32-Config` → `http://192.168.4.1`). No code.
-- **Module 7** — edit `lib/sensor/sensor.cpp` (`sensorBegin` / `doRead`) for your DS18B20.
-- **Module 9** — add a command in `lib/config_cmd_handler/` (the built-in `config:set_interval` shows the pattern).
-- **Module 10** — bump `FIRMWARE_VERSION` and run an OTA from the portal.
+- **Module 5** — upload it; configure WiFi + SSC credentials in the captive web portal (device becomes AP `SSN32-Config` → `http://192.168.4.1`). No code.
+- **Module 7** — wire the DS18B20, potentiometer and button; real values appear. Paste the decoder from [`sensorclouds-template/docs/platform/decoder.md`](sensorclouds-template/docs/platform/decoder.md) into the device in Sensorclouds.
+- **Module 9** — send the built-in `config:set_led` and `config:set_interval` commands from Sensorclouds.
+- **Module 10** — bump `FIRMWARE_VERSION` (starts at `1.0.0`) and run an OTA from the portal.
 
 Credentials are entered in the portal and saved to the device's flash — **nothing sensitive in the code**.
 
@@ -92,7 +93,7 @@ Module 4    Firmware Patterns & Code Structure
 ──────────────────────────────────────────────  ← from here, use sensorclouds-template/
 Module 5    Connect with the SSC Template
 Module 6    MQTT & the Messaging Model
-Module 7    Publish Your Real Sensor
+Module 7    Wire Your Parts, See Real Data
 Module 8    SSC Dashboard Walkthrough & Widget Creation
 Module 9    Control the Device from the Cloud
 ──────────────────────────────────────────────

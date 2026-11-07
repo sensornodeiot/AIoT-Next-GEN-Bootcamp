@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="300" font-family="Segoe UI, Roboto, Arial, sans-serif" viewBox="0 0 360 300"><rect width="100%" height="100%" fill="#ffffff"/>
+        <rect x="20" y="10" width="320" height="280" rx="14" fill="#1F3864"/>
+        <text x="180" y="40" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">inside the template</text>
+        <g font-size="15">
+          <rect x="40" y="55" width="280" height="36" rx="8" fill="#2b4a7e"/><text x="58" y="79" fill="#fff">Wi-Fi + auto-reconnect</text>
+          <rect x="40" y="97" width="280" height="36" rx="8" fill="#2b4a7e"/><text x="58" y="121" fill="#fff">MQTT over TLS</text>
+          <rect x="40" y="139" width="280" height="36" rx="8" fill="#6f8f2f"/><text x="58" y="163" fill="#fff">reads your 4 parts, every 10 s</text>
+          <rect x="40" y="181" width="280" height="36" rx="8" fill="#2b4a7e"/><text x="58" y="205" fill="#fff">commands + ACK</text>
+          <rect x="40" y="223" width="280" height="36" rx="8" fill="#2b4a7e"/><text x="58" y="247" fill="#fff">safe OTA updates</text>
+        </g>
+      </svg>

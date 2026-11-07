@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240" font-family="Segoe UI, Roboto, Arial, sans-serif" viewBox="0 0 400 240"><rect width="100%" height="100%" fill="#ffffff"/>
+        <defs><marker id="b5" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#6f8f2f"/></marker></defs>
+        <rect x="10" y="20" width="120" height="60" rx="10" fill="#6f8f2f"/><text x="70" y="56" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">LED on</text>
+        <path d="M135 50 L185 50" stroke="#6f8f2f" stroke-width="4" marker-end="url(#b5)"/>
+        <rect x="190" y="15" width="120" height="70" rx="10" fill="#1F3864"/><text x="250" y="45" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">GPIO 2</text><text x="250" y="68" text-anchor="middle" fill="#c7d7ec" font-size="13">HIGH</text>
+        <path d="M250 90 L130 150" stroke="#6f8f2f" stroke-width="3" marker-end="url(#b5)"/><path d="M250 90 L250 150" stroke="#6f8f2f" stroke-width="3" marker-end="url(#b5)"/><path d="M250 90 L360 150" stroke="#6f8f2f" stroke-width="3" marker-end="url(#b5)"/>
+        <g text-anchor="middle">
+        <g font-size="13" fill="#5b6472"><text x="120" y="220">LED</text><text x="250" y="220">buzzer</text><text x="365" y="220">relay</text></g></g>
+      </svg>

@@ -1,12 +1,11 @@
 #include "config_cmd_handler.h"
 #include "ssc_client.h"
-#define LED_CMD_PIN 2
+#include "sensor.h"   // ledSet(): the workshop LED on GPIO 2
+
 void ConfigCmdHandler::begin(ConfigStore* store, Config* config, SSCClient* client) {
     store_ = store;
     config_ = config;
     client_ = client;
-    pinMode(LED_CMD_PIN, OUTPUT);
-    digitalWrite(LED_CMD_PIN, LOW); 
     Serial.println("[CfgCmd] Handler initialized");
 }
 
@@ -28,8 +27,6 @@ void ConfigCmdHandler::handleMessage(const char* topic, uint8_t* payload, unsign
 
     if (strcmp(command, "config:set_interval") == 0) {
         handleSetInterval(doc);
-    } else if (strcmp(command, "config:set_power_interval") == 0) {
-        handleSetPowerInterval(doc);
     } else if (strcmp(command, "config:set_led") == 0) {
         handleSetLed(doc);
     } else {
@@ -69,37 +66,6 @@ void ConfigCmdHandler::handleSetInterval(JsonDocument& doc) {
     sendAck(cmdId, "config:set_interval", "ok");
 }
 
-void ConfigCmdHandler::handleSetPowerInterval(JsonDocument& doc) {
-    const char* cmdId = doc["commandId"] | "unknown";
-    JsonVariant param = doc["parameters"]["power_publish_interval_ms"];
-
-    if (param.isNull() || !param.is<uint32_t>()) {
-        sendAck(cmdId, "config:set_power_interval", "failed",
-                "Missing or invalid power_publish_interval_ms");
-        return;
-    }
-
-    uint32_t newInterval = param.as<uint32_t>();
-    if (newInterval < MIN_INTERVAL_MS || newInterval > MAX_INTERVAL_MS) {
-        char errMsg[80];
-        snprintf(errMsg, sizeof(errMsg),
-                 "power_publish_interval_ms out of range (%u-%u)",
-                 MIN_INTERVAL_MS, MAX_INTERVAL_MS);
-        sendAck(cmdId, "config:set_power_interval", "failed", errMsg);
-        return;
-    }
-
-    config_->power_publish_interval_ms = newInterval;
-
-    if (!store_->save(*config_)) {
-        sendAck(cmdId, "config:set_power_interval", "failed", "NVS save failed");
-        return;
-    }
-
-    Serial.printf("[CfgCmd] power_publish_interval_ms = %u (saved)\n", newInterval);
-    sendAck(cmdId, "config:set_power_interval", "ok");
-}
-
 void ConfigCmdHandler::handleSetLed(JsonDocument& doc) {
     const char* cmdId = doc["commandId"] | "unknown";
     JsonVariant param = doc["parameters"]["state"];
@@ -110,8 +76,13 @@ void ConfigCmdHandler::handleSetLed(JsonDocument& doc) {
     }
 
     int state = param.as<int>();
-    digitalWrite(LED_CMD_PIN, state ? HIGH : LOW);
-    Serial.printf("[CfgCmd] LED -> %d\n", state);
+    if (state != 0 && state != 1) {
+        sendAck(cmdId, "config:set_led", "failed", "State must be 0 or 1");
+        return;
+    }
+
+    ledSet(state == 1);
+    Serial.printf("[CfgCmd] LED -> %s\n", state ? "on" : "off");
     sendAck(cmdId, "config:set_led", "ok");
 }
 

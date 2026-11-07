@@ -39,5 +39,4 @@ private:
 
     bool otaAckChecked_ = false;
     uint32_t lastPublishMs_ = 0;
-    uint32_t lastPowerPublishMs_ = 0;
 };

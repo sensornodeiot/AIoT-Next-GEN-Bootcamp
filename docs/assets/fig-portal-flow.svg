@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="190" font-family="Segoe UI, Roboto, Arial, sans-serif" viewBox="0 0 900 190"><rect width="100%" height="100%" fill="#ffffff"/>
+      <defs><marker id="b3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#6f8f2f"/></marker></defs>
+      <g text-anchor="middle" font-size="14">
+        <rect x="10" y="20" width="160" height="110" rx="12" fill="#F2F6FB" stroke="#1F3864" stroke-width="2"/><text x="90" y="88" font-weight="700" fill="#1F3864">Join Wi-Fi</text><text x="90" y="108" fill="#5b6472">SSN32-Config</text>
+        <rect x="190" y="20" width="160" height="110" rx="12" fill="#F2F6FB" stroke="#1F3864" stroke-width="2"/><text x="270" y="88" font-weight="700" fill="#1F3864">Open browser</text><text x="270" y="108" fill="#5b6472">192.168.4.1</text>
+        <rect x="370" y="20" width="160" height="110" rx="12" fill="#F2F6FB" stroke="#1F3864" stroke-width="2"/><text x="450" y="88" font-weight="700" fill="#1F3864">Your Wi-Fi</text><text x="450" y="108" fill="#5b6472">2.4 GHz only</text>
+        <rect x="550" y="20" width="160" height="110" rx="12" fill="#F2F6FB" stroke="#1F3864" stroke-width="2"/><text x="630" y="88" font-weight="700" fill="#1F3864">MQTT details</text><text x="630" y="108" fill="#5b6472">from your device page</text>
+        <rect x="730" y="20" width="160" height="110" rx="12" fill="#EEF5DE" stroke="#6f8f2f" stroke-width="2"/><text x="810" y="88" font-weight="700" fill="#1F3864">Reboot</text><text x="810" y="108" fill="#5b6472">→ online</text>
+        <path d="M172 75 L186 75" stroke="#6f8f2f" stroke-width="4" marker-end="url(#b3)"/><path d="M352 75 L366 75" stroke="#6f8f2f" stroke-width="4" marker-end="url(#b3)"/><path d="M532 75 L546 75" stroke="#6f8f2f" stroke-width="4" marker-end="url(#b3)"/><path d="M712 75 L726 75" stroke="#6f8f2f" stroke-width="4" marker-end="url(#b3)"/>
+        <text x="450" y="170" fill="#5b6472" font-size="15">settings are saved inside the board · port <tspan font-weight="700" fill="#1F3864">8883</tspan> is pre-filled: leave it</text>
+      </g>
+    </svg>

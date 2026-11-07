@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="270" font-family="Segoe UI, Roboto, Arial, sans-serif" viewBox="0 0 420 270"><rect width="100%" height="100%" fill="#ffffff"/>
+        <text x="40" y="30" font-size="15" font-weight="700" fill="#1F3864">3.3 V (inside the chip)</text>
+        <line x1="100" y1="40" x2="100" y2="60" stroke="#1F3864" stroke-width="3"/>
+        <path d="M100 60 l-12 8 l24 12 l-24 12 l24 12 l-24 12 l12 8" fill="none" stroke="#1F3864" stroke-width="3"/>
+        <text x="130" y="95" font-size="14" fill="#6f8f2f" font-weight="700">pull-up</text>
+        <line x1="100" y1="124" x2="100" y2="150" stroke="#1F3864" stroke-width="3"/>
+        <circle cx="100" cy="150" r="6" fill="#6f8f2f"/><line x1="100" y1="150" x2="200" y2="150" stroke="#1F3864" stroke-width="3"/>
+        <text x="215" y="155" font-size="16" font-weight="700" fill="#1F3864">GPIO 4</text>
+        <line x1="100" y1="150" x2="100" y2="180" stroke="#1F3864" stroke-width="3"/>
+        <line x1="100" y1="180" x2="130" y2="200" stroke="#1F3864" stroke-width="3"/><circle cx="100" cy="212" r="4" fill="#1F3864"/>
+        <text x="140" y="200" font-size="14" fill="#5b6472">button</text>
+        <line x1="100" y1="212" x2="100" y2="232" stroke="#1F3864" stroke-width="3"/>
+        <line x1="80" y1="232" x2="120" y2="232" stroke="#1F3864" stroke-width="3"/><line x1="88" y1="240" x2="112" y2="240" stroke="#1F3864" stroke-width="3"/>
+        <text x="130" y="244" font-size="14" font-weight="700" fill="#1F3864">GND</text>
+        <rect x="260" y="190" width="150" height="66" rx="8" fill="#F2F6FB" stroke="#c7d7ec"/><text x="335" y="216" text-anchor="middle" font-size="14" fill="#1F3864">released → HIGH</text><text x="335" y="240" text-anchor="middle" font-size="14" fill="#1F3864">pressed → LOW</text>
+      </svg>

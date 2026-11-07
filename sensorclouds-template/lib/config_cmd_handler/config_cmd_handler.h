@@ -19,7 +19,6 @@ public:
 private:
     void handleSetLed(JsonDocument& doc);
     void handleSetInterval(JsonDocument& doc);
-    void handleSetPowerInterval(JsonDocument& doc);
     void sendAck(const char* commandId, const char* command,
                  const char* status, const char* error = nullptr);
 

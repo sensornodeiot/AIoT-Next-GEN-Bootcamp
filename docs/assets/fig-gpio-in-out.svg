@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="230" font-family="Segoe UI, Roboto, Arial, sans-serif" viewBox="0 0 900 230"><rect width="100%" height="100%" fill="#ffffff"/>
+      <defs><marker id="a5" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#6f8f2f"/></marker></defs>
+      <rect x="350" y="30" width="200" height="170" rx="14" fill="#1F3864"/><text x="450" y="72" text-anchor="middle" fill="#fff" font-size="20" font-weight="700">SSN32</text>
+      <rect x="350" y="95" width="200" height="34" fill="#2b4a7e"/><text x="450" y="118" text-anchor="middle" fill="#fff" font-size="15">digitalWrite(2, HIGH)</text>
+      <rect x="350" y="145" width="200" height="34" fill="#2b4a7e"/><text x="450" y="168" text-anchor="middle" fill="#fff" font-size="15">digitalRead(4)</text>
+      <path d="M555 112 L690 112" stroke="#6f8f2f" stroke-width="4" marker-end="url(#a5)"/><text x="620" y="94" text-anchor="middle" font-size="14" fill="#1F3864" font-weight="700">OUTPUT · GPIO 2</text>
+      <text x="760" y="150" text-anchor="middle" font-size="14" fill="#5b6472">3.3 V → on</text>
+      <path d="M195 162 L340 162" stroke="#6f8f2f" stroke-width="4" marker-end="url(#a5)"/>
+      <text x="270" y="148" text-anchor="middle" font-size="14" fill="#1F3864" font-weight="700">INPUT · GPIO 4</text>
+      <text x="140" y="200" text-anchor="middle" font-size="14" fill="#5b6472">pressed → LOW</text>
+    </svg>

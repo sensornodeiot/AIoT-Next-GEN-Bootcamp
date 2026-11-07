@@ -12,7 +12,6 @@ namespace {
     constexpr const char* KEY_TENANT_ID       = "tenant_id";
     constexpr const char* KEY_APP_ID          = "app_id";
     constexpr const char* KEY_PUBLISH_INTERVAL       = "pub_int";
-    constexpr const char* KEY_POWER_PUBLISH_INTERVAL = "pwr_int";
     constexpr const char* KEY_OTA_CMD_ID      = "ota_cmd_id";
     constexpr const char* KEY_OTA_TGT_VER     = "ota_tgt_ver";
     constexpr const char* KEY_OTA_STATE       = "ota_state";
@@ -43,7 +42,6 @@ bool ConfigStore::load(Config& config) {
     prefs.getString(KEY_TENANT_ID, config.tenant_id, sizeof(config.tenant_id));
     prefs.getString(KEY_APP_ID, config.application_id, sizeof(config.application_id));
     config.publish_interval_ms       = prefs.getULong(KEY_PUBLISH_INTERVAL,       10000);
-    config.power_publish_interval_ms = prefs.getULong(KEY_POWER_PUBLISH_INTERVAL,  5000);
 
     prefs.end();
     return true;
@@ -66,7 +64,6 @@ bool ConfigStore::save(const Config& config) {
     ok &= prefs.putString(KEY_TENANT_ID, config.tenant_id) > 0 || config.tenant_id[0] == '\0';
     ok &= prefs.putString(KEY_APP_ID, config.application_id) > 0 || config.application_id[0] == '\0';
     ok &= prefs.putULong(KEY_PUBLISH_INTERVAL,       config.publish_interval_ms)       > 0;
-    ok &= prefs.putULong(KEY_POWER_PUBLISH_INTERVAL, config.power_publish_interval_ms) > 0;
 
     prefs.end();
     return ok;

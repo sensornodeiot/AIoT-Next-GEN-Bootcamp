@@ -1,4 +1,3 @@
-
 # Module 2 — GPIO: Output & Input
 
 **Goal:** Control and read physical hardware from code — blink an LED and read a push button reliably.
@@ -20,6 +19,38 @@
 
 GPIO pins are how the MCU connects to the real world: they drive LEDs, control relay coils, read button states, and communicate with sensors.
 
+![fig-gpio-in-out.svg](assets/fig-gpio-in-out.svg)
+*An output pin makes a voltage; an input pin reads one.*
+
+### On/off (digital) parts in your kit
+
+A **digital** part has only two states: on or off, pressed or released, HIGH or LOW. This module wires the first two rows; the others work the same way and show where the idea goes in real devices.
+
+| Part | Direction | What it does | Where you'd use it |
+|------|-----------|--------------|--------------------|
+| **LED** | Output | Lights when the pin is HIGH | Status light: "online", "alarm active" |
+| **4-leg tactile switch** | Input | Joins two legs while pressed | Reset, mode select, "call for service" button |
+| **3-pin button module** | Input | A button with its own resistor on a small board | Same jobs, wired with three jumpers |
+| **Active buzzer** | Output | Beeps by itself while powered | Door-open alarm, "fridge too warm" beep |
+| **RGB LED** | Output | Red, green and blue LEDs in one part, one pin each | One light, several meanings: green OK, red fault |
+| **4N35 optocoupler** | Input | Passes an on/off signal through light, with no wire between the two sides | Reading a 12–24 V machine signal ("motor running") without connecting it to the 3.3 V board |
+
+> The buzzer needs more current than a GPIO pin should give, so a transistor (also in the kit) switches it and the pin only tells the transistor when to beep. You can build it at the end of the lab: "Swap the output — make it beep".
+
+### Think in roles, not parts
+
+The pin doesn't know *which* part is connected: an input pin only sees HIGH or LOW, and an output pin only makes HIGH or LOW. So this module's code isn't "LED code" and "button code". It is **on/off output** code (GPIO 2) and **on/off input** code (GPIO 4), and any part that does that job works:
+
+| Role | Pin | Any of these | Change in code |
+|------|-----|--------------|----------------|
+| On/off output | GPIO 2 | LED + 220 Ω, active buzzer (through a transistor), a common-cathode RGB LED | None |
+| On/off input | GPIO 4 | 4-leg tactile switch, 3-pin button module, 4N35 optocoupler | The `PRESSED` line (LOW or HIGH) |
+
+Use whichever part you have, and try swapping once the lab works. [swap-your-parts](swap-your-parts.md) has the wiring for every option.
+
+![fig-roles-gpio.svg](assets/fig-roles-gpio.svg)
+*Two jobs, many parts: the code only knows the pin.*
+
 ### Voltage levels on the SSN32
 
 Every GPIO pin operates at **3.3 V logic**. HIGH = 3.3 V, LOW = 0 V. Never connect a 5 V signal to a GPIO pin without level shifting — it will damage the chip.
@@ -28,18 +59,52 @@ Every GPIO pin operates at **3.3 V logic**. HIGH = 3.3 V, LOW = 0 V. Never conne
 
 ## 2. Controlling an LED (Output)
 
+### Using the breadboard
+
+<img src="assets/kit-breadboard.png" width="150">
+
+Every lab is built on the breadboard, so it's worth knowing what's joined inside it. The holes are joined in short strips by metal clips under the plastic:
+
+1. Each **short column of 5 holes** (a–e, or f–j) is one wire. Put a part's leg and a jumper wire in the same column and they are connected.
+2. The **centre gap** separates the two halves: a–e and f–j of the same column are *not* joined.
+3. The long **rails** (red +, blue −) along the edges are joined end to end. Use one for 3V3 and one for GND.
+
+![part-breadboard.svg](assets/part-breadboard.svg)
+*What is joined inside the breadboard: short columns of five, and the long rails.*
+
 ### Ohm's law and the current-limiting resistor
 
-An LED will draw as much current as the circuit allows. Without a resistor, it pulls far more than the pin can source (~12 mA GPIO limit on ESP32) and will burn out — along with the GPIO driver.
+An LED will draw as much current as the circuit allows. Without a resistor, it pulls far more than the pin can safely give (keep each ESP32 pin to about **20 mA**; 40 mA is its absolute maximum) and can damage the LED and the pin.
 
 Use a **220 Ω resistor** in series with the LED:
 
-```
-GPIO 2 ──[220Ω]──[LED anode → cathode]──> GND
-```
+![fig-led-resistor.svg](assets/fig-led-resistor.svg)
+*GPIO 2 → 220 Ω → LED → GND. The resistor sets the current.*
 
-Ohm's law: `V = I × R`  
-`3.3 V / 220 Ω ≈ 15 mA` — within the LED's rated range and well within the pin limit.
+Ohm's law: `I = V / R`. The LED itself always takes about 2 V, so the resistor only gets the rest:  
+`(3.3 V − 2 V) / 220 Ω ≈ 6 mA`: bright enough to see, and well within the pin limit.
+
+### Using the kit's LED
+
+<img src="assets/kit-led.png" width="170">
+
+An LED only lights **one way round**. Its two legs are different lengths:
+
+1. The **long leg** (anode, +) goes towards GPIO 2, through the 220 Ω resistor.
+2. The **short leg** (cathode, −) goes to GND. The rim of the LED is also flat on this side.
+3. Wrong way round? It simply stays dark. Turn it round; nothing is damaged.
+
+![part-led.svg](assets/part-led.svg)
+*The LED's legs: long leg towards the pin through 220 Ω, short leg (flat side) to GND.*
+
+### Which resistor is which?
+
+<img src="assets/kit-resistor-220r.png" width="130"> <img src="assets/kit-resistor-4k7.png" width="150"> <img src="assets/kit-resistor-10k.png" width="150">
+
+Resistors are marked with coloured bands, not numbers. Your kit has two styles: a beige body with 4 bands and a blue body with 5 bands. Read from the end where the bands bunch together; the last, separate band is the tolerance.
+
+![part-resistors.svg](assets/part-resistors.svg)
+*The four values used in the course, in both band styles. Not sure? Measure it with a multimeter on Ω.*
 
 ### pinMode and digitalWrite
 
@@ -69,6 +134,9 @@ void loop() {
 This works, but it is **fatally wrong for real firmware**. During both `delay(500)` calls, the MCU sits completely frozen — it cannot read a sensor, check a button, communicate over WiFi, or do anything at all. The entire program blocks.
 
 Rule: **never use `delay()` in production firmware**. You will not use it after this module.
+
+![fig-delay-vs-millis.svg](assets/fig-delay-vs-millis.svg)
+*With delay() the board is frozen between blinks. With millis() the loop keeps checking everything else in between.*
 
 ---
 
@@ -121,11 +189,33 @@ With `INPUT_PULLUP`:
 - The pin is held HIGH internally when no button is pressed
 - When you press the button and connect the pin to GND, it reads LOW
 
-Wire your button between the GPIO pin and GND (no external resistor needed):
+![fig-pullup.svg](assets/fig-pullup.svg)
+*The internal pull-up holds GPIO 4 HIGH; pressing the button joins it to GND.*
+
+Wire your button between **GPIO 4** and GND (no external resistor needed):
 
 ```
-GPIO 0 ──[button]──> GND
+GPIO 4 ──[button]──> GND
 ```
+
+### Using the kit's 4-leg tactile switch
+
+<img src="assets/kit-tactile-switch-4leg.png" width="160">
+
+The small black switch with a round cap and **four legs** (6 × 6 mm) is the most common button in electronics. It has no resistor and no board, so it is exactly the "button to GND" above.
+
+Four legs, but only **two connections**: inside, the legs are joined in pairs. The two legs that **face each other across the body** are always connected; pressing the cap joins the two pairs.
+
+1. Push it into the breadboard **across the centre gap**, like a chip.
+2. Use two legs that are **diagonally opposite**. Diagonal legs are always in different pairs, so this works whichever way round the switch sits.
+3. One diagonal leg → **GPIO 4**, the other → **GND**.
+
+![wire-switch-4leg.svg](assets/wire-switch-4leg.svg)
+*The 4-leg switch across the centre gap: legs are joined in pairs; use two diagonal legs.*
+
+> **Reads "pressed" all the time, or never?** You picked two legs of the same pair (always connected). Use the diagonal, or turn the switch 90°.
+
+> **Why GPIO 4 and not GPIO 0?** GPIO 0 is wired to the SSN32's own **BOOT** button. Holding it while the board starts puts the chip into upload mode, and from Module 5 the Sensorclouds template uses it to open its setup page. Keeping your button on GPIO 4 means you wire it once and it works in every module.
 
 Reading the button:
 
@@ -137,6 +227,25 @@ int state = digitalRead(BUTTON_PIN);
 
 Note the inverted logic — **LOW means pressed** when using `INPUT_PULLUP`.
 
+### Using the kit's 3-pin button module
+
+<img src="assets/kit-push-button-module.png" width="190">
+
+Your kit may have a button on a small board with three pins: **GND**, **VCC** and **OUT**. The board already has its own resistor, and most of these modules work the other way round: **OUT is LOW when released and HIGH when pressed.**
+
+| Module pin | Connect to |
+|-----------|-----------|
+| VCC | 3.3 V |
+| GND | GND |
+| OUT | GPIO 4 |
+
+![part-button-module.svg](assets/part-button-module.svg)
+*Inside a typical 3-pin module: a resistor holds OUT LOW; pressing joins OUT to VCC, so it reads HIGH.*
+
+In the code, keep `INPUT_PULLUP` and change one line: `#define PRESSED HIGH` instead of `LOW` (the lab code below has this line at the top).
+
+> **Not sure which kind you have?** Put `Serial.println(digitalRead(BUTTON_PIN));` in `loop()`, upload, and watch the Serial Monitor while you press and release. Whatever number shows *while pressed* (0 = LOW, 1 = HIGH) is your `PRESSED` value. Checking a part's behaviour like this, instead of guessing, is a habit worth keeping.
+
 ---
 
 ## 6. Button Bouncing and Simple Cooldown
@@ -146,10 +255,11 @@ Mechanical buttons bounce — when you press one, the contacts make and break do
 The simplest fix: after accepting a press, **ignore the button for the next 200 ms**. One variable is all it takes:
 
 ```cpp
+#define PRESSED LOW            // plain button to GND (kit 3-pin module: HIGH)
 unsigned long lastPressTime = 0;
 
 int raw = digitalRead(BUTTON_PIN);
-if (raw == LOW && now - lastPressTime >= 200) {
+if (raw == PRESSED && now - lastPressTime >= 200) {
     lastPressTime = now;
     // confirmed press — will not fire again for 200 ms
 }
@@ -181,7 +291,7 @@ void loop() {
 
     // --- Button task ---
     int raw = digitalRead(BUTTON_PIN);
-    if (raw == LOW && now - lastPressTime >= 200) {
+    if (raw == PRESSED && now - lastPressTime >= 200) {
         lastPressTime = now;
         // toggle the blink rate between 500 ms and 100 ms
         if (blinkInterval == 500) {
@@ -200,14 +310,21 @@ Both tasks run independently. Neither blocks the other.
 
 ## 8. Lab — LED Blink + Button Toggle
 
-### Hardware
+### Hardware: pick one part for each role
 
-| Component | Connection |
-|-----------|-----------|
-| LED (anode) | GPIO 2 via 220 Ω resistor |
-| LED (cathode) | GND |
-| Button (pin 1) | GPIO 0 |
-| Button (pin 2) | GND |
+| Role | Part | Connection | `PRESSED` |
+|------|------|-----------|-----------|
+| **Output** (GPIO 2) | LED | Long leg (anode) → 220 Ω → GPIO 2; short leg (cathode) → GND | — |
+| | *or* active buzzer | Through the transistor: see "Swap the output — make it beep" below | — |
+| **Input** (GPIO 4) | 4-leg tactile switch | One leg → GPIO 4, the diagonally opposite leg → GND | `LOW` |
+| | *or* 3-pin button module | VCC → 3.3 V, GND → GND, OUT → GPIO 4 | `HIGH` |
+
+Start with the LED (it's easier to see what's happening), then swap. The code is the same for every row; only the `PRESSED` line follows your input part.
+
+![wire-led-button.svg](assets/wire-led-button.svg)
+*Lab wiring: LED on GPIO 2, button on GPIO 4. The 3-pin module (right) replaces the button.*
+
+> **Bonus:** on all three course boards, GPIO 2 is also connected to an **on-board LED**, so the small LED on the board blinks together with yours. If only the on-board one blinks, check your LED's direction (long leg = anode, towards GPIO 2) and the resistor.
 
 ### Complete code
 
@@ -215,7 +332,8 @@ Both tasks run independently. Neither blocks the other.
 #include <Arduino.h>
 
 #define LED_PIN    2
-#define BUTTON_PIN 0
+#define BUTTON_PIN 4
+#define PRESSED    LOW   // plain button to GND. Kit 3-pin module: HIGH
 
 unsigned long lastToggle    = 0;
 unsigned long blinkInterval = 500;
@@ -241,7 +359,7 @@ void loop() {
 
     // Button press with cooldown
     int raw = digitalRead(BUTTON_PIN);
-    if (raw == LOW && now - lastPressTime >= 200) {
+    if (raw == PRESSED && now - lastPressTime >= 200) {
         lastPressTime = now;
         // toggle the blink rate between 500 ms and 100 ms
         if (blinkInterval == 500) {
@@ -256,9 +374,9 @@ void loop() {
 
 ### Build and upload
 
-1. `Ctrl+Alt+U` to upload
-2. `Ctrl+Alt+S` to open Serial Monitor at 115200
-3. Press RST on the SSN32
+1. Click **→ Upload** in the bottom bar (Windows: `Ctrl+Alt+U`)
+2. Click **🔌 Serial Monitor** (Windows: `Ctrl+Alt+S`)
+3. Press **EN** on the SSN32 to restart it and see the first lines
 
 ### Expected behaviour
 
@@ -273,7 +391,43 @@ void loop() {
 | LED stays on/off | Wrong pin or missing resistor | Check wiring and `LED_PIN` constant |
 | Multiple prints per press | Cooldown too short | Increase from `200` to `300` ms |
 | LED doesn't blink (just on) | `lastToggle` not updating | Ensure `lastToggle = now;` is inside the `if` |
-| Button does nothing | `INPUT_PULLUP` not set | Check `pinMode(BUTTON_PIN, INPUT_PULLUP)` |
+| Button does nothing | `INPUT_PULLUP` not set, or wrong pin | Check `pinMode(BUTTON_PIN, INPUT_PULLUP)` and that the wire is on GPIO 4 |
+| Rate keeps toggling by itself, or only changes when you *release* | `PRESSED` is the wrong level for your button | Swap `PRESSED` between `LOW` and `HIGH` (see "Using the kit's 3-pin button module") |
+| 4-leg switch: rate toggles by itself every 200 ms, or never | GPIO 4 and GND are on two legs of the same pair (always connected), or the switch isn't across the centre gap | Use two **diagonally opposite** legs, with the switch across the centre gap |
+
+### Swap the output — make it beep (active buzzer + transistor)
+
+Swap the LED for the kit's **active buzzer** (a **Digisound F/TCW05**: a small black cylinder, Ø 12 mm, with `+` marked on top) and your blink becomes a beep, with no code change. The button still switches between slow and fast beeps. It is loud (about 88 dB at 10 cm), so in class keep the test short.
+
+![part-buzzer.svg](assets/part-buzzer.svg)
+*The active buzzer: + is marked on top and on the longer leg. A sealed bottom means active (it beeps by itself).*
+
+**Why not wire the buzzer straight to the pin like the LED?** The F/TCW05 takes up to **30 mA**, more than a GPIO pin should give (about 20 mA). Things that need more current than a pin can give (buzzers, relays, motors, LED strips) are switched with a **transistor**: a tiny current from the pin into the transistor's **base** lets a much bigger current flow from its **collector** to its **emitter**, through the buzzer. The pin gives under 1 mA; the buzzer's current never goes through the ESP32.
+
+![wire-buzzer.svg](assets/wire-buzzer.svg)
+*The buzzer circuit: GPIO 2 switches the 2N2222A through 5.1 kΩ; the buzzer sits between 3V3 and the collector, with the 1N4007 across it.*
+
+1. **The transistor:** your kit's is a **2N2222A**, an **NPN** type (the print is on its flat face). Other NPN parts such as `S8050` work the same; PNP parts such as `S8550` won't work in this circuit.
+2. **Find its legs.** Flat face towards you, legs down: **E B C** from left to right (emitter, base, collector).
+3. **Base resistor:** the kit's **5.1 kΩ** works; **1 kΩ**, if you have one, switches the buzzer's full 30 mA with more margin. Never connect the base straight to the pin.
+4. **Buzzer:** `+` to 3.3 V, the other leg to the collector. Its legs are 7.6 mm apart, so they sit 3 breadboard holes apart. An active buzzer like the F/TCW05 has a sealed bottom; one with the circuit board showing underneath is the *passive* kind, which only clicks here.
+5. **Diode:** put the kit's **1N4007** across the buzzer, its **stripe towards `+`**. The F/TCW05 is an *electromagnetic* buzzer: there is a small coil inside, and when a coil switches off it kicks back a voltage spike. The diode soaks it up so it can't damage the transistor. Relays and motors have coils too and need the same diode.
+
+<img src="assets/photo-2n2222a.jpg" width="80"> <img src="assets/photo-1n4007.jpg" width="170">
+
+![part-2n2222a.svg](assets/part-2n2222a.svg)
+*The 2N2222A: flat face towards you, legs E B C. A small current into B lets the buzzer current flow C → E.*
+
+![part-1n4007.svg](assets/part-1n4007.svg)
+*The 1N4007 diode: the silver stripe is the cathode. Across the buzzer, the stripe goes towards +.*
+
+> **Louder?** The F/TCW05 is rated **5 V** (it works from 3 V to 7 V), so on 3.3 V it is quieter than it can be. If your SSN32 has a **5V** pin, put the buzzer's `+` (and the diode's stripe) there instead. The 5 V only flows through the buzzer and the transistor, never into the GPIO pin, so this is safe.
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| Silent, or very quiet | Transistor legs in the wrong order | Flat face towards you: E B C, left to right |
+| Beeps all the time | Buzzer's other leg on GND instead of the collector, or the base wired to 3.3 V | The buzzer goes to C only; the base goes only through the resistor to GPIO 2 |
+| Only clicks | It's the passive buzzer | Use the one with the sealed bottom |
 
 ---
 
@@ -284,6 +438,7 @@ void loop() {
 - [x] No repeated triggers — one physical press = one Serial print
 - [x] You can explain why `delay()` is a problem and how `millis()` solves it
 - [x] You can explain what button bouncing is and why a cooldown timer prevents false triggers
+- [x] You can explain why the same code works with a different button (or a buzzer instead of the LED), and which one line changes
 
 ---
 
@@ -293,3 +448,4 @@ In **[module-03-sensors](module-03-sensors.md)** you will:
 - Read analog signals with the ADC (`analogRead`)
 - Wire and read the DS18B20 temperature sensor using the 1-Wire protocol
 - Run two independent sensor reads in one `loop()` without blocking
+

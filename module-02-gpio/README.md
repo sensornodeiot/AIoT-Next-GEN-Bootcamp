@@ -15,7 +15,7 @@
 
 ## Lab
 
-Wire an LED to GPIO 2 and a push button to GPIO 0.
+Wire an LED to GPIO 2 and a push button to GPIO 4 (not GPIO 0, that is the BOOT button).
 
 - LED blinks every 500 ms using `millis()` (no `delay()`)
 - Each button press toggles the blink rate between 500 ms and 100 ms

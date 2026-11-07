@@ -1,4 +1,3 @@
-
 # Module 4 — Firmware Patterns & Code Structure
 
 **Goal:** Learn two things that separate a toy sketch from real firmware: (1) how to run several tasks at once without one freezing the others, and (2) how to split a growing program into tidy files so `main.cpp` stays readable.
@@ -26,6 +25,9 @@ The fix is the pattern you already met in Modules 2 and 3: break work into **sho
 ---
 
 ## 2. The Non-Blocking Timer Pattern (the one pattern to remember)
+
+![fig-tasks.svg](assets/fig-tasks.svg)
+*Three tasks, three clocks, one loop: each task acts only when its own time comes.*
 
 ```cpp
 unsigned long lastRun = 0;
@@ -94,6 +96,9 @@ Call `updateSensor()` every loop. Each call does a tiny bit and returns immediat
 ---
 
 ## 4. Why Split Code Into Files?
+
+![fig-files.svg](assets/fig-files.svg)
+*One file per job. main.cpp just calls the tasks; pins live in platformio.ini.*
 
 So far everything lived in `main.cpp`. That's fine for 40 lines. But once you add WiFi, the cloud client, sensors, and command handling, `main.cpp` becomes hundreds of lines and impossible to scan.
 
@@ -187,7 +192,7 @@ lib_deps =
 
 Now `SENSOR_PIN` works anywhere in your code as if you'd typed `32`. To move the sensor to another pin, you edit **one line** in `platformio.ini` — no hunting through source files.
 
-> **Why do it this way?** All your hardware choices end up in one place (`platformio.ini`), and the same code can be built for different boards just by changing flags. You'll use this constantly from Module 5 to hold WiFi and cloud credentials.
+> **Why do it this way?** All your hardware choices end up in one place (`platformio.ini`), and the same code can be built for different boards just by changing flags. Note: build flags are for things that are the same for every board (pins, version numbers). **Passwords and Wi-Fi details never go in build flags or code:** from Module 5 you type them into the device's own setup web page, and the board saves them in its memory.
 
 ### Multiple environments (optional)
 
@@ -327,6 +332,7 @@ The payoff is you can have *two* LEDs (`Led red(2,300); Led green(4,1000);`) fro
 ## 10. What's Next
 
 In **[module-05-ssc-client](module-05-ssc-client.md)** you will:
-- Connect the board to WiFi
-- Add the SSC-Client library and go **online** for the first time
-- See your device appear in the SSC cloud dashboard
+- Upload the ready-made Sensorclouds template and set it up from your phone or laptop browser
+- Go **online** for the first time
+- See your device appear in the Sensorclouds dashboard
+

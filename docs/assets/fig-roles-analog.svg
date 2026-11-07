@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="240" font-family="Segoe UI, Roboto, Arial, sans-serif" viewBox="0 0 900 240"><rect width="100%" height="100%" fill="#ffffff"/>
+      <defs><marker id="a7" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#6f8f2f"/></marker></defs>
+      <g font-size="15" fill="#1F3864">
+        <rect x="20" y="15" width="270" height="36" rx="18" fill="#EEF5DE" stroke="#b7cd7e"/><text x="40" y="39">pot · how far it's turned</text>
+        <rect x="20" y="58" width="270" height="36" rx="18" fill="#EEF5DE" stroke="#b7cd7e"/><text x="40" y="82">3296 trimmer · ~25 turns</text>
+        <rect x="20" y="101" width="270" height="36" rx="18" fill="#EEF5DE" stroke="#b7cd7e"/><text x="40" y="125">LDR + 10 kΩ · how bright</text>
+        <rect x="20" y="144" width="270" height="36" rx="18" fill="#EEF5DE" stroke="#b7cd7e"/><text x="40" y="168">NTC + 10 kΩ · how warm</text>
+      </g>
+      <rect x="360" y="55" width="190" height="80" rx="12" fill="#6f8f2f"/><text x="455" y="90" text-anchor="middle" fill="#fff" font-size="17" font-weight="700">Varying input</text><text x="455" y="114" text-anchor="middle" fill="#fff" font-size="14">GPIO 34 → 0–100 %</text>
+      <path d="M292 33 L355 80" stroke="#6f8f2f" stroke-width="3" marker-end="url(#a7)"/><path d="M292 76 L355 88" stroke="#6f8f2f" stroke-width="3" marker-end="url(#a7)"/><path d="M292 119 L355 100" stroke="#6f8f2f" stroke-width="3" marker-end="url(#a7)"/><path d="M292 162 L355 112" stroke="#6f8f2f" stroke-width="3" marker-end="url(#a7)"/>
+      <rect x="640" y="55" width="230" height="80" rx="12" fill="#1F3864"/><text x="755" y="90" text-anchor="middle" fill="#fff" font-size="17" font-weight="700">Digital sensor</text><text x="755" y="114" text-anchor="middle" fill="#fff" font-size="14">GPIO 32 · DS18B20 only</text>
+      <path d="M292 175 C450 230 600 230 690 140" fill="none" stroke="#c0392b" stroke-width="3" stroke-dasharray="8 6"/>
+      
+      <text x="880" y="230" text-anchor="end" font-size="14" fill="#c0392b">NTC senses temperature too, but it's analog: wrong role</text>
+    </svg>

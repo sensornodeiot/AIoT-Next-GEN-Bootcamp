@@ -1,9 +1,8 @@
-
 # Appendix — Under the Hood: the low-level `SSCClient`
 
 > **Optional / advanced.** The main course ([module-05-ssc-client](module-05-ssc-client.md) onward) uses the ready-made **template** (`SSCApp`) — you flash it and configure it in a browser, writing almost no code. This appendix shows what's happening *inside*: how to drive the low-level `SSCClient` class by hand — connect WiFi yourself, build `SSCConfig`, call `begin()`/`update()`. Read it only if you're curious how the template works, or you want to build a device from the building blocks instead of the orchestrator. For the full hand-written code of every connectivity module in this style, see [modules-5-10-step-by-step](modules-5-10-step-by-step.md).
 >
-> **Note:** driving `SSCClient` directly means *you* are responsible for publishing regularly — a device that only connects and never publishes is marked **offline** by the platform after a few minutes. The template solves this with its built-in periodic telemetry scheduler.
+> **Note:** driving `SSCClient` directly means *you* are responsible for publishing regularly — a device that only connects and never publishes is marked **offline** by the platform after 90 seconds without a message. The template solves this with its built-in periodic telemetry scheduler.
 
 **Goal:** Get your SSN32 onto the internet and connected to the SSC platform — so it shows up **online** in the dashboard. You will connect to WiFi yourself, then let the SSC-Client library handle the messaging part for you.
 
@@ -124,7 +123,7 @@ SSCClient  sscClient(wifiClient); // hand the pipe to the library
 
 ```cpp
 SSCConfig config = {
-    .host          = SSC_BROKER,      // MQTT broker address, e.g. "mqtt.sensorclouds.com"
+    .host          = SSC_BROKER,      // MQTT broker address, e.g. "mqtt.sensorclouds.app"
     .port          = 1883,            // standard MQTT port
     .clientId      = DEVICE_ID,       // your device's ID from the dashboard
     .username      = DEVICE_TOKEN,    // device token — also used to build the message topics
@@ -202,7 +201,7 @@ Instead, put them in `platformio.ini` as build flags. The compiler substitutes t
 build_flags =
     '-DWIFI_SSID="YourNetwork"'
     '-DWIFI_PASSWORD="YourPassword"'
-    '-DSSC_BROKER="mqtt.sensorclouds.com"'
+    '-DSSC_BROKER="mqtt.sensorclouds.app"'
     '-DDEVICE_ID="your-device-id"'
     '-DDEVICE_TOKEN="your-device-token"'
     '-DDEVICE_PASSWORD="your-device-password"'
@@ -233,7 +232,7 @@ framework = arduino
 build_flags =
     '-DWIFI_SSID="YourNetwork"'
     '-DWIFI_PASSWORD="YourPassword"'
-    '-DSSC_BROKER="mqtt.sensorclouds.com"'
+    '-DSSC_BROKER="mqtt.sensorclouds.app"'
     '-DDEVICE_ID="your-device-id"'
     '-DDEVICE_TOKEN="your-device-token"'
     '-DDEVICE_PASSWORD="your-device-password"'
@@ -294,7 +293,7 @@ Expected Serial output:
 ```
 [wifi] connecting....
 [wifi] connected — IP: 192.168.1.42
-[SSC] Broker: mqtt.sensorclouds.com:1883
+[SSC] Broker: mqtt.sensorclouds.app:1883
 [SSC] Telemetry: tenant/.../app/.../device/.../data
 [SSC] Connecting...
 [SSC] Connected
@@ -336,3 +335,4 @@ In **[module-06-mqtt-ssc-registration](module-06-mqtt-ssc-registration.md)** you
 - Learn what MQTT actually is — broker, topic, publish/subscribe — the messaging model under everything you just did
 - Understand how SSC turns your tenant/app/device IDs into topics
 - See why MQTT (not a normal web request) is the right tool for IoT
+

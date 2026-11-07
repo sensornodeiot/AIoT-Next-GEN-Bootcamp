@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="260" font-family="Segoe UI, Roboto, Arial, sans-serif" viewBox="0 0 400 260"><rect width="100%" height="100%" fill="#ffffff"/>
+        <g font-size="15" font-weight="700" fill="#1F3864" text-anchor="middle">
+          <text x="70" y="30">voltage</text><text x="200" y="30">raw</text><text x="330" y="30">meaning</text>
+        </g>
+        <rect x="50" y="45" width="40" height="190" rx="6" fill="#F2F6FB" stroke="#c7d7ec"/><rect x="50" y="140" width="40" height="95" rx="6" fill="#6f8f2f"/>
+        <rect x="180" y="45" width="40" height="190" rx="6" fill="#F2F6FB" stroke="#c7d7ec"/><rect x="180" y="140" width="40" height="95" rx="6" fill="#2b4a7e"/>
+        <rect x="310" y="45" width="40" height="190" rx="6" fill="#F2F6FB" stroke="#c7d7ec"/><rect x="310" y="140" width="40" height="95" rx="6" fill="#1F3864"/>
+        <g font-size="14" fill="#1F3864" text-anchor="middle"><text x="70" y="132">1.65 V</text><text x="200" y="132">2048</text><text x="330" y="132">50 %</text></g>
+        <g font-size="12" fill="#5b6472"><text x="95" y="52">3.3</text><text x="95" y="236">0</text><text x="225" y="52">4095</text><text x="225" y="236">0</text><text x="355" y="52">100</text><text x="355" y="236">0</text></g>
+        <path d="M100 180 L170 180 M230 180 L300 180" stroke="#6f8f2f" stroke-width="3"/>
+      </svg>

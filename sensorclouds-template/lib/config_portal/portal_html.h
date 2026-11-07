@@ -183,6 +183,7 @@ const char PORTAL_HTML[] PROGMEM = R"rawliteral(
   .modal-icon { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
   .modal-icon.warn { background: #FEF3C7; color: var(--orange); }
   .modal-icon.loading { background: var(--blue-light); color: var(--blue); }
+  .modal-icon.done { background: #D1FAE5; color: #059669; }
   .modal h3 { font-size: 16px; margin-bottom: 8px; }
   .modal p { font-size: 13px; color: var(--mid); margin-bottom: 20px; line-height: 1.5; }
   .modal .btn-row { display: flex; gap: 10px; justify-content: center; }
@@ -329,7 +330,7 @@ const char PORTAL_HTML[] PROGMEM = R"rawliteral(
         <div class="grid">
           <div class="form-group">
             <label class="label">WiFi SSID <span class="req">*</span></label>
-            <input type="text" id="wifi-ssid" placeholder="e.g. MyNetwork_5G" maxlength="32">
+            <input type="text" id="wifi-ssid" placeholder="e.g. MyNetwork (2.4 GHz only)" maxlength="32">
             <div class="field-error" id="err-wifi-ssid">WiFi SSID is required</div>
           </div>
           <div class="form-group">
@@ -633,20 +634,74 @@ function saveMqtt() {
     .finally(() => { btn.disabled = false; btn.textContent = 'Save & Continue'; });
 }
 
-function showRebootModal() { document.getElementById('reboot-modal').classList.add('show'); }
+let rebootModalHtml = null;
+
+function showRebootModal() {
+  const content = document.getElementById('reboot-modal-content');
+  if (rebootModalHtml === null) rebootModalHtml = content.innerHTML;
+  else content.innerHTML = rebootModalHtml;   // reset after a previous restart
+  document.getElementById('reboot-modal').classList.add('show');
+}
 function hideRebootModal() { document.getElementById('reboot-modal').classList.remove('show'); }
 
-function doReboot() {
+function setRebootModal(iconClass, iconSvg, title, text, buttonsHtml) {
   const icon = document.getElementById('reboot-icon');
-  const title = document.getElementById('reboot-title');
-  const text = document.getElementById('reboot-text');
+  icon.className = 'modal-icon ' + iconClass;
+  icon.innerHTML = iconSvg;
+  document.getElementById('reboot-title').textContent = title;
+  document.getElementById('reboot-text').textContent = text;
   const buttons = document.getElementById('reboot-buttons');
-  icon.className = 'modal-icon loading';
-  icon.innerHTML = '<svg class="spinner" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>';
-  title.textContent = 'Restarting...';
-  text.textContent = 'Please wait. Reconnect to your regular WiFi network after the device restarts.';
-  buttons.style.display = 'none';
-  fetch('/reboot', { method: 'POST' });
+  buttons.innerHTML = buttonsHtml;
+  buttons.style.display = buttonsHtml ? '' : 'none';
+}
+
+const SPIN_SVG = '<svg class="spinner" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>';
+const DONE_SVG = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+const WARN_SVG = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+
+// The device drops this WiFi network when it restarts, so the page can never
+// get an answer from the new firmware. Stop the spinner after the restart time
+// and tell the user what to do next. If the portal answers again, the device
+// came back in setup mode (settings incomplete or BOOT held).
+const REBOOT_DONE_MS = 8000;
+const REBOOT_WATCH_MS = 30000;
+
+function doReboot() {
+  setRebootModal('loading', SPIN_SVG, 'Restarting...', 'Please wait about 10 seconds while the device restarts.', '');
+  fetch('/reboot', { method: 'POST' }).catch(() => {});
+
+  const startedAt = Date.now();
+  let finished = false;
+
+  setTimeout(() => {
+    if (finished) return;
+    finished = true;
+    setRebootModal('done', DONE_SVG, 'Restart complete',
+      'The device has left setup mode and is connecting to your WiFi and Sensorclouds. ' +
+      'Reconnect this phone or laptop to your normal WiFi, then check the device in Sensorclouds. ' +
+      'If the SSN32-Config network appears again, a setting is missing: join it and open http://192.168.4.1.',
+      '<button class="btn btn-primary" onclick="hideRebootModal()">Close</button>');
+  }, REBOOT_DONE_MS);
+
+  // Best effort: if the portal comes back, say so instead. The first check waits
+  // 5 s so it can't catch the old portal before the restart has happened.
+  (function poll(delayMs) {
+    if (Date.now() - startedAt > REBOOT_WATCH_MS) return;
+    setTimeout(() => {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 2000);
+      fetch('/api/config', { signal: ctrl.signal, cache: 'no-store' })
+        .then(r => {
+          if (!r.ok) throw new Error();
+          finished = true;
+          setRebootModal('warn', WARN_SVG, 'Back in setup mode',
+            'The device restarted into setup mode again, so a WiFi or Sensorclouds setting is missing or wrong. Check the settings and save them again.',
+            '<button class="btn btn-primary" onclick="location.reload()">Reload settings</button>');
+        })
+        .catch(() => poll(3000))
+        .finally(() => clearTimeout(timer));
+    }, delayMs);
+  })(5000);
 }
 
 function fileSelected(input) {

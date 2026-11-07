@@ -3,52 +3,129 @@
 #include <string.h>
 #include <stdio.h>
 #include <inttypes.h>
+#include <math.h>
 #include <Arduino.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
 // ============================================================================
-//  WORKSHOP SENSOR
-//  You edit ONLY the two functions marked "EDIT THIS". SSCApp calls sensorRead()
-//  every publish_interval_ms and publishes the result — that steady publish is
-//  what keeps your device ONLINE.
+//  WORKSHOP HARDWARE
+//  Everything the course wires to the SSN32 lives in this file:
+//
+//    DS18B20 temperature   GPIO 32  (+ 4.7 kΩ or 5.1 kΩ pull-up to 3.3 V)
+//    Varying input         GPIO 34  (analog, 0–100 %): potentiometer, 3296
+//                                    trimmer, or an LDR / NTC + 10 kΩ to GND
+//    On/off input          GPIO 4   (4-leg switch to GND, or the kit's
+//                                    3-pin module: OUT → GPIO 4)
+//    On/off output         GPIO 2   (the SSN32's on-board LED; an external
+//                                    LED + 220 Ω, or a buzzer through a
+//                                    transistor, switches with it)
+//
+//  The code reads the pin, not the part: any part that does the same job
+//  works with no change here (docs/swap-your-parts.md).
+//
+//  SSCApp calls sensorRead() every publish_interval_ms (10 s by default) and
+//  publishes the result. It ALWAYS publishes all four values, even if nothing
+//  is wired yet, because a steady publish is what keeps the device ONLINE.
+//  A missing DS18B20 is sent as "no value" (NaN), never as a fake number.
+//
+//  Payload order (the platform decoder depends on it — keep it the same):
+//    temperature, pot, button, led
 // ============================================================================
 
 #define DS18B20_PIN 32
+#define POT_PIN     34
+#define BUTTON_PIN  4
+#define LED_PIN     2
+
 static OneWire oneWire(DS18B20_PIN);
 static DallasTemperature sensors(&oneWire);
 
-// ── EDIT THIS (1/2): initialize your sensor hardware, once at startup ──
-bool sensorBegin() {
-    // Module 5: there is no real sensor yet — nothing to initialize.
-    // Module 7: for the DS18B20 you'll do the OneWire/Dallas setup here, e.g.
-      sensors.begin();
-      sensors.setResolution(12);
-      pinMode(4, INPUT_PULLUP);   // button: pressed = LOW
-    return true;   // return false only if your hardware failed to start
+static bool ledOn = false;
+
+// A plain button wired to GND reads LOW when pressed. The kit's 3-pin button
+// module (VCC / GND / OUT) reads HIGH when pressed. sensorBegin() checks which
+// way the pin rests at power-up and treats the opposite level as "pressed",
+// so both work. (Don't hold the button while the board starts.)
+static int buttonPressedLevel = LOW;
+
+// Set by the button interrupt, cleared after each publish. This way a quick
+// press between two publishes still shows up as "pressed" on the dashboard.
+static volatile bool buttonPressedSincePublish = false;
+
+static void IRAM_ATTR onButtonPress() {
+    buttonPressedSincePublish = true;
 }
 
-// ── EDIT THIS (2/2): read your sensor, add one or more NAMED values ──
+void ledSet(bool on) {
+    ledOn = on;
+    digitalWrite(LED_PIN, on ? HIGH : LOW);
+}
+
+bool ledIsOn() {
+    return ledOn;
+}
+
+bool sensorBegin() {
+    // DS18B20: "ask now, read later". A 12-bit reading takes ~750 ms, so we
+    // don't wait for it: we start a conversion now and read the finished
+    // result at the next publish.
+    sensors.begin();
+    sensors.setResolution(12);
+    sensors.setWaitForConversion(false);
+    sensors.requestTemperatures();
+    Serial.printf("[Sensor] DS18B20 found: %d\n", sensors.getDeviceCount());
+
+    pinMode(BUTTON_PIN, INPUT_PULLUP);
+    delay(5);
+    buttonPressedLevel = (digitalRead(BUTTON_PIN) == HIGH) ? LOW : HIGH;
+    attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), onButtonPress,
+                    buttonPressedLevel == LOW ? FALLING : RISING);
+    Serial.printf("[Sensor] Button on GPIO %d reads %s when pressed\n",
+                  BUTTON_PIN, buttonPressedLevel == LOW ? "LOW" : "HIGH");
+
+    pinMode(LED_PIN, OUTPUT);
+    ledSet(false);
+
+    return true;
+}
+
+// Average several ADC samples so the potentiometer value doesn't jump around.
+static float readPotPercent() {
+    const int SAMPLES = 16;
+    uint32_t sum = 0;
+    for (int i = 0; i < SAMPLES; i++) {
+        sum += analogRead(POT_PIN);
+    }
+    return (sum / (float)SAMPLES) / 4095.0f * 100.0f;
+}
+
 static SensorReading doRead() {
     SensorReading r;
 
-    // Module 5 starter: a fake temperature that drifts around 25 °C, so the whole
-    // pipeline works with NO extra hardware and the device stays online.
-    // In Module 7 you replace this with a real DS18B20 reading:
-    //   float t = sensors.getTempCByIndex(0);
-    //   if (t == DEVICE_DISCONNECTED_C) return r;   // r.valid stays false -> skip publish
-    //   r.add("temperature", t);
-    sensors.requestTemperatures();
+    // 1. Temperature (°C) — the result of the conversion started last time
     float t = sensors.getTempCByIndex(0);
     if (t == DEVICE_DISCONNECTED_C) {
-        Serial.println("[Sensor] DS18B20 not found");
-        return r;
+        Serial.println("[Sensor] DS18B20 not found - temperature sent as no value");
+        t = NAN;
+        sensors.begin();   // look again, in case it was just plugged in
     }
-    r.add("temperautre", t);
-    // potentiometer as a 0–100 % value
-    r.add("pot", analogRead(34) / 4095.0f * 100.0f);
-    // button state: 1 = pressed, 0 = released
-    r.add("button", digitalRead(4) == LOW ? 1.0f : 0.0f);
+    sensors.requestTemperatures();   // start the next conversion
+    r.add("temperature", t);
+
+    // 2. Potentiometer (or LDR) as 0–100 %
+    r.add("pot", readPotPercent());
+
+    // 3. Button: 1 = held now or pressed since the last publish, 0 = not pressed
+    bool pressed = digitalRead(BUTTON_PIN) == buttonPressedLevel || buttonPressedSincePublish;
+    buttonPressedSincePublish = false;
+    r.add("button", pressed ? 1.0f : 0.0f);
+
+    // 4. LED: 1 = on, 0 = off (switched from Sensorclouds with config:set_led)
+    r.add("led", ledIsOn() ? 1.0f : 0.0f);
+
+    Serial.printf("[Sensor] temperature=%.2f pot=%.1f%% button=%d led=%d\n",
+                  t, r.params[1].value, pressed ? 1 : 0, ledIsOn() ? 1 : 0);
 
     r.valid = true;   // must be true or nothing is published
     return r;
@@ -76,6 +153,3 @@ bool sensorRead(char* hexOut, size_t hexLen) {
     SensorReading r = doRead();
     return encodeHex(r, hexOut, hexLen);
 }
-
-// The workshop template does not use the second (power-meter) publish path.
-bool powerRead(char* /*hexOut*/, size_t /*hexLen*/) { return false; }

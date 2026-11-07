@@ -6,7 +6,6 @@
 #define SENSOR_MAX_PARAMS     16
 #define SENSOR_PARAM_NAME_LEN 16
 #define SENSOR_HEX_BUF_LEN   133  // 4 (nonce) + 16*8 (params) + 1 (null)
-#define POWER_HEX_BUF_LEN    SENSOR_HEX_BUF_LEN
 
 struct SensorParam {
     char  name[SENSOR_PARAM_NAME_LEN];
@@ -32,4 +31,8 @@ struct SensorReading {
 // Implement these functions in sensor.cpp
 bool sensorBegin();
 bool sensorRead(char* hexOut, size_t hexLen);
-bool powerRead(char* hexOut, size_t hexLen);
+
+// The workshop LED (GPIO 2). Switched by the config:set_led command and
+// reported in every publish.
+void ledSet(bool on);
+bool ledIsOn();

@@ -226,7 +226,7 @@ build_flags =
 
 ```ini
 [env:esp32dev]
-platform = espressif32
+platform = espressif32@6.12.0
 board = esp32dev
 framework = arduino
 build_flags =

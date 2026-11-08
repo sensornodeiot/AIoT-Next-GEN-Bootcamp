@@ -311,7 +311,7 @@ Two events per 2-second cycle: trigger at the top, read 800 ms later. The loop i
 
 ```ini
 [env:esp32dev]
-platform = espressif32
+platform = espressif32@6.12.0
 board = esp32dev
 framework = arduino
 lib_deps =

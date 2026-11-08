@@ -179,7 +179,7 @@ A pin number buried in code (`OneWire oneWire(32);`) is easy to lose track of. P
 
 ```ini
 [env:esp32dev]
-platform = espressif32
+platform = espressif32@6.12.0
 board = esp32dev
 framework = arduino
 build_flags =

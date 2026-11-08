@@ -118,7 +118,7 @@ Open `platformio.ini`. It looks like this:
 
 ```ini
 [env:ssn32]
-platform = espressif32
+platform = espressif32@6.12.0
 board = esp32dev
 framework = arduino
 monitor_speed = 115200
@@ -127,7 +127,7 @@ monitor_speed = 115200
 | Key                      | Meaning                                                                             |
 | ------------------------ | ----------------------------------------------------------------------------------- |
 | `[env:ssn32]`            | Names this build environment ("ssn32"). One file can hold several environments      |
-| `platform = espressif32` | The hardware platform (Espressif chip family)                                       |
+| `platform = espressif32@6.12.0` | The hardware platform (Espressif chip family). `@6.12.0` fixes the version the course is tested on, so every computer builds the same way |
 | `board = esp32dev`       | The board definition. `esp32dev` matches the SSN32's ESP32-WROOM-32E                |
 | `framework = arduino`    | Use the Arduino SDK (gives you `setup()`, `loop()`, `Serial`, etc.)                 |
 | `monitor_speed = 115200` | The speed the Serial Monitor listens at. Must match `Serial.begin(115200)` in your code |

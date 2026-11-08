@@ -1,5 +1,6 @@
 #include "ota_handler.h"
 #include "config.h"
+#include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
 #include <Update.h>

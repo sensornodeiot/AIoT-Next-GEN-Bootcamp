@@ -45,7 +45,7 @@ module-05-ssc-client/
 
 ```ini
 [env:ssn32]
-platform = espressif32
+platform = espressif32@6.12.0
 board = esp32dev
 framework = arduino
 monitor_speed = 115200
@@ -221,7 +221,7 @@ Module 5 ready.
 ▶ DO: Add the sensor libraries and the sensor pin to the flags. Complete file:
 ```ini
 [env:ssn32]
-platform = espressif32
+platform = espressif32@6.12.0
 board = esp32dev
 framework = arduino
 monitor_speed = 115200
